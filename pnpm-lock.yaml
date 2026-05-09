@@ -152,6 +152,9 @@ importers:
       lucide-react:
         specifier: 1.14.0
         version: 1.14.0(react@19.0.0)
+      morphdom:
+        specifier: 2.7.4
+        version: 2.7.4
       radix-ui:
         specifier: 1.4.3
         version: 1.4.3(@types/react-dom@19.0.4(@types/react@19.0.10))(@types/react@19.0.10)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -183,6 +186,9 @@ importers:
       '@tailwindcss/vite':
         specifier: ^4.0.0
         version: 4.3.0(vite@5.4.21(@types/node@20.19.40)(lightningcss@1.32.0)(sass@1.51.0)(terser@5.47.1))
+      '@types/morphdom':
+        specifier: 2.4.2
+        version: 2.4.2
       '@types/react':
         specifier: ^19.0.10
         version: 19.0.10
@@ -192,6 +198,9 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^4.3.4
         version: 4.7.0(vite@5.4.21(@types/node@20.19.40)(lightningcss@1.32.0)(sass@1.51.0)(terser@5.47.1))
+      jsdom:
+        specifier: 22.1.0
+        version: 22.1.0
       tailwindcss:
         specifier: ^4.0.0
         version: 4.3.0
@@ -201,6 +210,9 @@ importers:
       vite:
         specifier: ^5.4.0
         version: 5.4.21(@types/node@20.19.40)(lightningcss@1.32.0)(sass@1.51.0)(terser@5.47.1)
+      vitest:
+        specifier: 3.0.6
+        version: 3.0.6(@types/debug@4.1.13)(@types/node@20.19.40)(@vitest/ui@2.0.5)(jsdom@22.1.0)(lightningcss@1.32.0)(msw@2.14.5(@types/node@20.19.40)(typescript@5.9.3))(sass@1.51.0)(terser@5.47.1)
 
   examples/with-nextjs:
     dependencies:
@@ -3604,6 +3616,10 @@ packages:
   '@types/mdast@4.0.4':
     resolution: {integrity: sha512-kGaNbPh1k7AFzgpud/gMdvIm5xuECykRR+JnWKQno9TAXVa6WIVCGTPvYGekIDL4uwCZQSYbUxNBSb1aUo79oA==}
 
+  '@types/morphdom@2.4.2':
+    resolution: {integrity: sha512-tKZZkqBzRJ1ucthVqr41rW2yvTO5ItYTp5I1vc30t06OsRmZTP+TprYa5S6VHdQEuMbnAxR5WXtFmOZ2FIhc/g==}
+    deprecated: This is a stub types definition. morphdom provides its own type definitions, so you do not need this installed.
+
   '@types/ms@2.1.0':
     resolution: {integrity: sha512-GsCCIZDE/p3i96vtEqx+7dBUGXrc7zeSK3wwPHIaRThS+9OhWIXRqzs4d6k1SVU8g91DrNRWxWUGhp5KXQb2VA==}
 
@@ -6564,6 +6580,9 @@ packages:
 
   moo-color@1.0.3:
     resolution: {integrity: sha512-i/+ZKXMDf6aqYtBhuOcej71YSlbjT3wCO/4H1j8rPvxDJEifdwgg5MaFyu6iYAT8GBZJg2z0dkgK4YMzvURALQ==}
+
+  morphdom@2.7.4:
+    resolution: {integrity: sha512-ATTbWMgGa+FaMU3FhnFYB6WgulCqwf6opOll4CBzmVDTLvPMmUPrEv8CudmLPK0MESa64+6B89fWOxP3+YIlxQ==}
 
   mrmime@2.0.1:
     resolution: {integrity: sha512-Y3wQdFg2Va6etvQ5I82yUhGdsKrcYox6p7FfL1LbK2J4V01F9TGlepTIhnK24t7koZibmg82KGglhA1XK5IsLQ==}
@@ -11900,6 +11919,10 @@ snapshots:
     dependencies:
       '@types/unist': 3.0.3
 
+  '@types/morphdom@2.4.2':
+    dependencies:
+      morphdom: 2.7.4
+
   '@types/ms@2.1.0': {}
 
   '@types/node@20.19.40':
@@ -15400,6 +15423,8 @@ snapshots:
   moo-color@1.0.3:
     dependencies:
       color-name: 1.1.4
+
+  morphdom@2.7.4: {}
 
   mrmime@2.0.1: {}
 
