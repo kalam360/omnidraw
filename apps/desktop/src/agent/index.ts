@@ -73,6 +73,8 @@ export {
   createMemoryKeyStore,
   createFileKeyStore,
   createStorageKeyStore,
+  createTauriKeyStore,
+  createKeyStore,
   type KeyRecord,
   type KeyStore,
 } from "./auth/keychain";

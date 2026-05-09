@@ -1,0 +1,13 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Default permissions for the omnidraw main window: core APIs plus shell:allow-open (browser hand-off for the device-flow auth path) and keyring:default (read/write the Omnizen API key in the OS keychain).",
+  "windows": [
+    "main"
+  ],
+  "permissions": [
+    "core:default",
+    "shell:allow-open",
+    "keyring:default"
+  ]
+}

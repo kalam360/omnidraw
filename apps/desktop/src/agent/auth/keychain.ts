@@ -1,30 +1,34 @@
 /**
  * Key storage for the Omnizen API key.
  *
- * v1 (this implementation) — file-based + StorageAdapter passthrough.
+ * v1 — file-based + StorageAdapter passthrough.
  *
- *   Until the Storage team's `setSetting/getSetting` adapter ships,
- *   we read/write a file at `$XDG_CONFIG_HOME/omnidraw/auth.json`
- *   (falling back to `~/omnidraw/auth.json`) with `mode 0600`. When
- *   a `StorageAdapter` is supplied, we delegate to its
- *   `setSetting("omnizen.apiKey", apiKey)` instead.
+ *   Until the Storage team's `setSetting/getSetting` adapter ships in the
+ *   Tauri runtime, we read/write a file at `~/omnidraw/auth.json` with
+ *   `mode 0600` for SPA dev. When a `StorageAdapter` is supplied, we
+ *   delegate to its `setSetting("omnizen.apiKey", apiKey)` instead.
  *
  * v2 (S10) — Tauri keychain.
  *
- *   Switch to `tauri-plugin-keyring` for OS-level secret storage.
- *   The migration:
- *     1. On first v2 launch, read the v1 file/setting.
- *     2. If found, write to keychain via `keyring::set("omnidraw",
- *        "omnizen", apiKey)`.
- *     3. Delete the file / clear the setting.
- *   The same `KeyStore` interface remains; only the implementation
- *   swaps.
+ *   Under Tauri, `createKeyStore()` returns a `tauri-plugin-keyring`-
+ *   backed `KeyStore` that persists the API key in the OS-native
+ *   credential store (Keychain on macOS, Credential Manager on Windows,
+ *   Secret Service on Linux). The file fallback remains for the SPA dev
+ *   server path (where `node:fs` is available via vite's SSR loader for
+ *   the agent tests) and as a last-resort fallback inside Tauri if the
+ *   keyring command fails.
  */
 
 import type { StorageAdapter } from "../../contracts/storage";
 
 export const OMNIZEN_API_KEY_SETTING = "omnizen.apiKey";
 export const OMNIZEN_BASE_URL_SETTING = "omnizen.baseUrl";
+
+/** Service/account identifiers used in the OS keychain entry. */
+export const OMNIDRAW_KEYRING_SERVICE = "omnidraw";
+export const OMNIDRAW_KEYRING_ACCOUNT = "omnizen";
+/** Single keychain entry holds the JSON-serialized `KeyRecord`. */
+export const OMNIDRAW_KEYRING_AUTH_KEY = "auth";
 
 export interface KeyRecord {
   apiKey: string;
@@ -129,6 +133,83 @@ export function createMemoryKeyStore(initial?: KeyRecord | null): KeyStore {
       cur = null;
     },
   };
+}
+
+// -- Tauri keyring-backed store (desktop runtime) --------------------------
+
+/**
+ * Persists the `KeyRecord` in the OS-native credential store via
+ * `tauri-plugin-keyring`. Only used when running inside Tauri (detected
+ * via `@tauri-apps/api/core#isTauri`); the SPA dev path falls back to the
+ * file-backed store.
+ *
+ * The plugin's JS surface is fully async and lazy-loaded so that vite
+ * tree-shakes it out of SPA bundles.
+ */
+export function createTauriKeyStore(): KeyStore {
+  return {
+    async load() {
+      const { getPassword } = await import("tauri-plugin-keyring-api");
+      const raw = await getPassword(
+        OMNIDRAW_KEYRING_SERVICE,
+        OMNIDRAW_KEYRING_ACCOUNT,
+      );
+      if (!raw) return null;
+      try {
+        return JSON.parse(raw) as KeyRecord;
+      } catch {
+        // Corrupt entry — treat as missing rather than throwing so the
+        // user can re-authenticate.
+        return null;
+      }
+    },
+    async save(rec) {
+      const { setPassword } = await import("tauri-plugin-keyring-api");
+      await setPassword(
+        OMNIDRAW_KEYRING_SERVICE,
+        OMNIDRAW_KEYRING_ACCOUNT,
+        JSON.stringify(rec),
+      );
+    },
+    async clear() {
+      const { deletePassword } = await import("tauri-plugin-keyring-api");
+      try {
+        await deletePassword(
+          OMNIDRAW_KEYRING_SERVICE,
+          OMNIDRAW_KEYRING_ACCOUNT,
+        );
+      } catch {
+        // Missing entry is not an error for `clear()`.
+      }
+    },
+  };
+}
+
+// -- Runtime-aware factory -------------------------------------------------
+
+/**
+ * Returns the appropriate `KeyStore` for the current runtime:
+ *   - Inside Tauri: OS keychain via `createTauriKeyStore()`.
+ *   - SPA dev / Node tests: file-backed via `createFileKeyStore()`.
+ *
+ * Tests should pass an explicit `KeyStore` (e.g. `createMemoryKeyStore()`)
+ * to the agent factory rather than relying on this helper.
+ */
+export function createKeyStore(): KeyStore {
+  if (isTauriRuntime()) {
+    return createTauriKeyStore();
+  }
+  return createFileKeyStore();
+}
+
+function isTauriRuntime(): boolean {
+  // `window.__TAURI_INTERNALS__` is injected by the Tauri runtime; checking
+  // for its presence avoids importing `@tauri-apps/api` (which would resolve
+  // even in vite SSR / vitest).
+  return (
+    typeof window !== "undefined" &&
+    "__TAURI_INTERNALS__" in (window as object)
+  );
 }
 
 // -- Helpers ---------------------------------------------------------------

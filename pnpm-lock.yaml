@@ -137,15 +137,30 @@ importers:
       '@earendil-works/pi-ai':
         specifier: 0.74.0
         version: 0.74.0(@modelcontextprotocol/sdk@1.29.0(zod@3.25.76))(ws@8.20.0)(zod@3.25.76)
+      '@excalidraw/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@excalidraw/element':
         specifier: workspace:*
         version: link:../../packages/element
       '@excalidraw/excalidraw':
         specifier: workspace:*
         version: link:../../packages/excalidraw
+      '@excalidraw/fractional-indexing':
+        specifier: workspace:*
+        version: link:../../packages/fractional-indexing
+      '@excalidraw/math':
+        specifier: workspace:*
+        version: link:../../packages/math
       '@fontsource-variable/geist':
         specifier: 5.2.8
         version: 5.2.8
+      '@tauri-apps/api':
+        specifier: 2.11.0
+        version: 2.11.0
+      '@tauri-apps/plugin-shell':
+        specifier: 2.3.5
+        version: 2.3.5
       ai:
         specifier: 6.0.177
         version: 6.0.177(zod@3.25.76)
@@ -185,6 +200,9 @@ importers:
       tailwind-merge:
         specifier: 3.5.0
         version: 3.5.0
+      tauri-plugin-keyring-api:
+        specifier: 0.1.1
+        version: 0.1.1
       tw-animate-css:
         specifier: 1.4.0
         version: 1.4.0
@@ -3825,6 +3843,12 @@ packages:
     resolution: {integrity: sha512-t6J3OrB5Fc0ExuhohouH0fWUGMYL6PTLhW+E7zIk/pdbnJARZDCwjBznFnkh5ynRnIRSI4YjtTH0t6USjJISrw==}
     peerDependencies:
       vite: ^5.2.0 || ^6 || ^7 || ^8
+
+  '@tauri-apps/api@2.11.0':
+    resolution: {integrity: sha512-7CinYODhky9lmO23xHnUFv0Xt43fbtWMyxZcLcRBlFkcgXKuEirBvHpmtJ89YMhyeGcq20Wuc47Fa4XjyniywA==}
+
+  '@tauri-apps/plugin-shell@2.3.5':
+    resolution: {integrity: sha512-jewtULhiQ7lI7+owCKAjc8tYLJr92U16bPOeAa472LHJdgaibLP83NcfAF2e+wkEcA53FxKQAZ7byDzs2eeizg==}
 
   '@testing-library/dom@10.4.0':
     resolution: {integrity: sha512-pemlzrSESWbdAloYml3bAJMEfNh1Z7EduzqPKprCH5S341frlpYnUEW0H72dLxa6IsYr+mPno20GiSm+h9dEdQ==}
@@ -8388,6 +8412,9 @@ packages:
   tar-stream@2.2.0:
     resolution: {integrity: sha512-ujeqbceABgwMZxEJnk2HDY2DlnUZ+9oEcb1KzTVfYHio0UE6dG71n60d8D2I4qNvleWrrXpmjpt7vZeF1LnMZQ==}
     engines: {node: '>=6'}
+
+  tauri-plugin-keyring-api@0.1.1:
+    resolution: {integrity: sha512-vs1ztf6REJPfvUDBY3VgNHiW+xBHvBtMf3ZQIJKB8UCWdb2bLFoDS+BjUHe58deCPGTInCh+SEtd69pZvV/b4w==}
 
   temp-dir@2.0.0:
     resolution: {integrity: sha512-aoBAniQmmwtcKp/7BzsH8Cxzv8OL736p7v1ihGb5e9DJ9kTwGWHrQrVB5+lfVDzfGrdRzXch+ig7LHaY1JTOrg==}
@@ -13203,6 +13230,12 @@ snapshots:
       '@tailwindcss/oxide': 4.3.0
       tailwindcss: 4.3.0
       vite: 5.4.21(@types/node@24.12.3)(lightningcss@1.32.0)(sass@1.51.0)(terser@5.47.1)
+
+  '@tauri-apps/api@2.11.0': {}
+
+  '@tauri-apps/plugin-shell@2.3.5':
+    dependencies:
+      '@tauri-apps/api': 2.11.0
 
   '@testing-library/dom@10.4.0':
     dependencies:
@@ -18657,6 +18690,10 @@ snapshots:
       fs-constants: 1.0.0
       inherits: 2.0.4
       readable-stream: 3.6.2
+
+  tauri-plugin-keyring-api@0.1.1:
+    dependencies:
+      '@tauri-apps/api': 2.11.0
 
   temp-dir@2.0.0: {}
 

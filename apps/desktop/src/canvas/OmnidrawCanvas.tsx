@@ -25,12 +25,22 @@ import {
 } from "./controller";
 import { omnidrawAppStateDefaults, omnidrawUIOptions } from "./theme";
 
-// Lazy chunk: real Excalidraw lives here.
+// Lazy chunk: real Excalidraw lives here. We point the runtime at the
+// pre-built `dist/prod/index.css` (the workspace package's
+// `build:packages` step produces this), keeping the SCSS sources out of
+// the desktop bundle. The dynamic specifier is hidden behind a variable
+// so Vite's alias `@excalidraw/excalidraw/*` (which maps to source) does
+// not rewrite it.
 const ExcalidrawLazy = lazy(async () => {
   const mod = await import("@excalidraw/excalidraw");
   // Side-effect import for stylesheet — only on the browser path.
-  await import("@excalidraw/excalidraw/index.css").catch(() => {
-    /* css path differs between builds — non-fatal in dev */
+  // The `/* @vite-ignore */` directive tells Vite to skip alias rewriting
+  // and resolve the path at runtime against the published package's
+  // `exports` map (CSS is declared there under the `production` /
+  // `development` conditions).
+  const cssPath = "@excalidraw/excalidraw/index.css";
+  await import(/* @vite-ignore */ cssPath).catch(() => {
+    /* CSS path differs between dev/prod builds — non-fatal. */
   });
   return { default: mod.Excalidraw };
 });
@@ -72,10 +82,10 @@ export const OmnidrawCanvas = forwardRef<CanvasController, OmnidrawCanvasProps>(
       >
         <Suspense fallback={<CanvasFallback />}>
           <ExcalidrawLazy
-            excalidrawAPI={(api) => {
-              apiRef.current = api as ExcalidrawApiLike;
+            onExcalidrawAPI={(api) => {
+              apiRef.current = (api ?? null) as ExcalidrawApiLike | null;
               setReady(true);
-              onReady?.(controller);
+              if (api) onReady?.(controller);
             }}
             initialData={
               initialElements
