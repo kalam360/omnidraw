@@ -11,7 +11,8 @@
     "test:storage": "vitest run --config vitest.storage.config.ts",
     "test:storage:watch": "vitest --config vitest.storage.config.ts",
     "test:canvas": "vitest run --config ./vitest.canvas.config.ts",
-    "test:canvas:watch": "vitest --config ./vitest.canvas.config.ts"
+    "test:canvas:watch": "vitest --config ./vitest.canvas.config.ts",
+    "test:agent": "vitest run --config vitest.agent.config.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "3.0.63",
@@ -19,6 +20,8 @@
     "@assistant-ui/react-ai-sdk": "1.3.23",
     "@assistant-ui/react-markdown": "^0.7.0",
     "@base-ui/react": "1.4.1",
+    "@earendil-works/pi-agent-core": "0.74.0",
+    "@earendil-works/pi-ai": "0.74.0",
     "@excalidraw/element": "workspace:*",
     "@excalidraw/excalidraw": "workspace:*",
     "@fontsource-variable/geist": "5.2.8",
@@ -42,7 +45,7 @@
     "@tailwindcss/vite": "^4.0.0",
     "@types/better-sqlite3": "7.6.12",
     "@types/morphdom": "2.4.2",
-    "@types/node": "22.10.5",
+    "@types/node": "^24.0.0",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-react": "^4.3.4",
@@ -50,6 +53,6 @@
     "tailwindcss": "^4.0.0",
     "typescript": "^5.6.0",
     "vite": "^5.4.0",
-    "vitest": "3.0.6"
+    "vitest": "^3.2.4"
   }
 }
