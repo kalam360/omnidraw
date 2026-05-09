@@ -1,0 +1,5 @@
+packages:
+  - excalidraw-app
+  - packages/*
+  - examples/*
+  - apps/*
