@@ -109,7 +109,7 @@ export function createOmnidrawAuthAdapter(
         } else if (result.kind === "expired") {
           pendingResolver?.({ kind: "expired" });
         } else if (result.kind === "cancelled") {
-          pendingResolver?.({ kind: "error", reason: "cancelled" });
+          pendingResolver?.({ kind: "cancelled" });
         } else {
           pendingResolver?.({ kind: "error", reason: result.reason });
         }
@@ -135,7 +135,7 @@ export function createOmnidrawAuthAdapter(
 
     async cancelConnect() {
       pendingAbort?.abort();
-      pendingResolver?.({ kind: "error", reason: "cancelled" });
+      pendingResolver?.({ kind: "cancelled" });
       pendingResolver = null;
       pendingAbort = null;
       pendingPromise = null;

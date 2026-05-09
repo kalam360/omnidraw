@@ -2,6 +2,7 @@ import { SqliteStorageAdapter, type CreateStorageOptions } from "./adapter.js";
 
 export type { CreateStorageOptions } from "./adapter.js";
 export { SqliteStorageAdapter } from "./adapter.js";
+export { StorageError, StorageNotFoundError } from "./errors.js";
 
 /**
  * Factory for the storage adapter. The returned instance owns a

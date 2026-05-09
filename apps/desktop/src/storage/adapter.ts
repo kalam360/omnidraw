@@ -1,6 +1,8 @@
 import path from "node:path";
 import { homedir } from "node:os";
 
+import type BetterSqlite3 from "better-sqlite3";
+
 import type {
   Project,
   Scene,
@@ -10,18 +12,22 @@ import type {
   ThreadRef,
 } from "../contracts/storage.js";
 import type { ChatMessage } from "../contracts/chat.js";
+import { StorageNotFoundError } from "./errors.js";
 
 import { openDatabase, type DbHandle } from "./db.js";
 import {
   atomicWriteFile,
   ensureDir,
-  listFiles,
   readFileUtf8,
   removeDir,
   removeFile,
 } from "./files.js";
 import { createId, slugify } from "./ids.js";
 import { generateThumbnail } from "./thumbnails.js";
+
+// Widen prepared-statement type to variadic so .run/.get/.all accept any
+// number of args; we don't need per-statement bind tuples here.
+type Stmt = BetterSqlite3.Statement<unknown[], unknown>;
 
 export interface CreateStorageOptions {
   /** Absolute base path. Defaults to ~/omnidraw. */
@@ -79,26 +85,26 @@ export class SqliteStorageAdapter implements StorageAdapter {
 
   // Prepared statements (lazy-initialized in constructor).
   private readonly sql: {
-    insertProject: ReturnType<DbHandle["db"]["prepare"]>;
-    selectProject: ReturnType<DbHandle["db"]["prepare"]>;
-    selectAllProjects: ReturnType<DbHandle["db"]["prepare"]>;
-    updateProjectName: ReturnType<DbHandle["db"]["prepare"]>;
-    deleteProject: ReturnType<DbHandle["db"]["prepare"]>;
-    countScenesByProject: ReturnType<DbHandle["db"]["prepare"]>;
-    countThreadsByProject: ReturnType<DbHandle["db"]["prepare"]>;
-    upsertScene: ReturnType<DbHandle["db"]["prepare"]>;
-    selectScenesByProject: ReturnType<DbHandle["db"]["prepare"]>;
-    selectScene: ReturnType<DbHandle["db"]["prepare"]>;
-    deleteScene: ReturnType<DbHandle["db"]["prepare"]>;
-    insertThread: ReturnType<DbHandle["db"]["prepare"]>;
-    selectThreadsByProject: ReturnType<DbHandle["db"]["prepare"]>;
-    selectThread: ReturnType<DbHandle["db"]["prepare"]>;
-    deleteThread: ReturnType<DbHandle["db"]["prepare"]>;
-    insertMessage: ReturnType<DbHandle["db"]["prepare"]>;
-    bumpThread: ReturnType<DbHandle["db"]["prepare"]>;
-    selectMessagesByThread: ReturnType<DbHandle["db"]["prepare"]>;
-    upsertSetting: ReturnType<DbHandle["db"]["prepare"]>;
-    selectSetting: ReturnType<DbHandle["db"]["prepare"]>;
+    insertProject: Stmt;
+    selectProject: Stmt;
+    selectAllProjects: Stmt;
+    updateProjectName: Stmt;
+    deleteProject: Stmt;
+    countScenesByProject: Stmt;
+    countThreadsByProject: Stmt;
+    upsertScene: Stmt;
+    selectScenesByProject: Stmt;
+    selectScene: Stmt;
+    deleteScene: Stmt;
+    insertThread: Stmt;
+    selectThreadsByProject: Stmt;
+    selectThread: Stmt;
+    deleteThread: Stmt;
+    insertMessage: Stmt;
+    bumpThread: Stmt;
+    selectMessagesByThread: Stmt;
+    upsertSetting: Stmt;
+    selectSetting: Stmt;
   };
 
   constructor(opts: CreateStorageOptions = {}) {
@@ -239,7 +245,7 @@ export class SqliteStorageAdapter implements StorageAdapter {
 
   async renameProject(id: string, name: string): Promise<Project> {
     const row = this.sql.selectProject.get(id) as ProjectRow | undefined;
-    if (!row) throw new Error(`project not found: ${id}`);
+    if (!row) throw new StorageNotFoundError("project", id);
     const now = nowIso();
     this.sql.updateProjectName.run(name, now, id);
 
@@ -281,11 +287,11 @@ export class SqliteStorageAdapter implements StorageAdapter {
     const row = this.sql.selectScene.get(projectId, sceneId) as
       | SceneRow
       | undefined;
-    if (!row) throw new Error(`scene not found: ${sceneId}`);
+    if (!row) throw new StorageNotFoundError("scene", sceneId);
     const project = this.sql.selectProject.get(projectId) as
       | ProjectRow
       | undefined;
-    if (!project) throw new Error(`project not found: ${projectId}`);
+    if (!project) throw new StorageNotFoundError("project", projectId);
 
     const filePath = path.join(project.path, "scenes", row.filename);
     const raw = await readFileUtf8(filePath);
@@ -305,7 +311,7 @@ export class SqliteStorageAdapter implements StorageAdapter {
     const project = this.sql.selectProject.get(projectId) as
       | ProjectRow
       | undefined;
-    if (!project) throw new Error(`project not found: ${projectId}`);
+    if (!project) throw new StorageNotFoundError("project", projectId);
 
     const id = scene.id || createId();
     const filename = `${id}${SCENE_EXT}`;
@@ -371,7 +377,7 @@ export class SqliteStorageAdapter implements StorageAdapter {
 
   async getThread(threadId: string): Promise<Thread> {
     const row = this.sql.selectThread.get(threadId) as ThreadRow | undefined;
-    if (!row) throw new Error(`thread not found: ${threadId}`);
+    if (!row) throw new StorageNotFoundError("thread", threadId);
     const messageRows = this.sql.selectMessagesByThread.all(
       threadId,
     ) as MessageRow[];
@@ -394,7 +400,7 @@ export class SqliteStorageAdapter implements StorageAdapter {
     const project = this.sql.selectProject.get(projectId) as
       | ProjectRow
       | undefined;
-    if (!project) throw new Error(`project not found: ${projectId}`);
+    if (!project) throw new StorageNotFoundError("project", projectId);
     const id = createId();
     const now = nowIso();
     this.sql.insertThread.run({

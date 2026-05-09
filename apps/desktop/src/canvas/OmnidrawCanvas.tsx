@@ -72,7 +72,6 @@ export const OmnidrawCanvas = forwardRef<CanvasController, OmnidrawCanvasProps>(
       >
         <Suspense fallback={<CanvasFallback />}>
           <ExcalidrawLazy
-            // @ts-expect-error - excalidrawAPI ref shape is not exposed in workspace types
             excalidrawAPI={(api) => {
               apiRef.current = api as ExcalidrawApiLike;
               setReady(true);

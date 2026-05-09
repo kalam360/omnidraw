@@ -112,12 +112,13 @@ describe("CanvasController", () => {
     expect(seen).toHaveLength(2);
   });
 
-  it("snapshot() falls back to empty bytes without an exporter", async () => {
+  it("snapshot() returns null bytes without an exporter", async () => {
     const { api } = makeApi();
     const ctrl = createController({ getApi: () => api });
     const snap = await ctrl.snapshot();
-    expect(snap.png).toBeInstanceOf(Uint8Array);
-    expect(snap.png.byteLength).toBe(0);
+    expect(snap.png).toBeNull();
+    expect(snap.width).toBe(0);
+    expect(snap.height).toBe(0);
   });
 
   it("snapshot() delegates to a custom exportPng hook", async () => {
@@ -133,7 +134,7 @@ describe("CanvasController", () => {
     await ctrl.setScene([el("a")]);
     const snap = await ctrl.snapshot();
     expect(snap.width).toBe(320);
-    expect(snap.png.byteLength).toBe(3);
+    expect(snap.png?.byteLength).toBe(3);
   });
 
   it("throws a useful error when called before mount", async () => {

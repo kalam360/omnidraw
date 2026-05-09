@@ -129,9 +129,10 @@ export function createController(deps: ControllerDeps): CanvasController {
       if (deps.exportPng) {
         return deps.exportPng(elements, appState);
       }
-      // Fallback: a 1x1 transparent PNG so callers always get bytes.
-      // Production attaches a real exporter via `exportPng`.
-      return { png: new Uint8Array(), width: 0, height: 0 };
+      // No exporter wired — surface `null` so callers can detect the
+      // headless/unit-test path explicitly. Production attaches a real
+      // exporter via `exportPng`.
+      return { png: null, width: 0, height: 0 };
     },
 
     on(event, cb) {

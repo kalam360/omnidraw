@@ -20,8 +20,13 @@ export interface CanvasController {
   /** Read the current scene (for refine-skill use). */
   getScene(): Promise<{ elements: ExcalidrawElement[]; meta: SceneMeta }>;
 
-  /** PNG snapshot for a "what does it look like now?" tool. */
-  snapshot(): Promise<{ png: Uint8Array; width: number; height: number }>;
+  /**
+   * PNG snapshot for a "what does it look like now?" tool. Returns
+   * `png: null` when no exporter is wired (e.g. unit tests, headless
+   * controller before mount) so callers can branch on missing bytes
+   * rather than getting a zero-byte buffer.
+   */
+  snapshot(): Promise<{ png: Uint8Array | null; width: number; height: number }>;
 
   /** Subscribe to user-driven canvas changes. */
   on(event: "scene_changed", cb: (elements: ExcalidrawElement[]) => void): () => void;

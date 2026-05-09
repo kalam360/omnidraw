@@ -163,6 +163,20 @@ export function createOmnidrawTools(opts: OmnidrawToolsOptions): AgentTool[] {
     parameters: SnapshotSceneArgs,
     execute: async () => {
       const { png, width, height } = await canvas.snapshot();
+      if (!png) {
+        // No exporter wired (e.g. canvas not mounted yet, or running in
+        // a Node/test rig without an export hook). Surface a structured
+        // error so the LLM can recover.
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: "snapshot_scene: canvas has no PNG exporter wired",
+            },
+          ],
+          details: { pngBase64: null, width, height },
+        };
+      }
       const pngBase64 = toBase64(png);
       return {
         content: [
