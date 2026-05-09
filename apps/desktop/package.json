@@ -9,7 +9,9 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "test:storage": "vitest run --config vitest.storage.config.ts",
-    "test:storage:watch": "vitest --config vitest.storage.config.ts"
+    "test:storage:watch": "vitest --config vitest.storage.config.ts",
+    "test:canvas": "vitest run --config ./vitest.canvas.config.ts",
+    "test:canvas:watch": "vitest --config ./vitest.canvas.config.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "3.0.63",
@@ -25,6 +27,7 @@
     "class-variance-authority": "0.7.1",
     "clsx": "1.1.1",
     "lucide-react": "1.14.0",
+    "morphdom": "2.7.4",
     "radix-ui": "1.4.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -38,10 +41,12 @@
   "devDependencies": {
     "@tailwindcss/vite": "^4.0.0",
     "@types/better-sqlite3": "7.6.12",
+    "@types/morphdom": "2.4.2",
     "@types/node": "22.10.5",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-react": "^4.3.4",
+    "jsdom": "22.1.0",
     "tailwindcss": "^4.0.0",
     "typescript": "^5.6.0",
     "vite": "^5.4.0",
