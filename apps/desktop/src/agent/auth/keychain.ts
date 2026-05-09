@@ -17,6 +17,11 @@
  *   server path (where `node:fs` is available via vite's SSR loader for
  *   the agent tests) and as a last-resort fallback inside Tauri if the
  *   keyring command fails.
+ *
+ *   NOTE — `tauri-plugin-keyring` 0.1.x is a small single-author crate.
+ *   Before v1 GA, audit the crate or migrate to a maintained alternative
+ *   (e.g. `tauri-plugin-stronghold` or wrap the well-tested `keyring`
+ *   Rust crate directly via a custom plugin). Tracked as a v0.2 follow-up.
  */
 
 import type { StorageAdapter } from "../../contracts/storage";
