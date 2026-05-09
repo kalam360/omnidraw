@@ -1,0 +1,1368 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>omnidraw — design system</title>
+    <link rel="preconnect" href="https://rsms.me/" />
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
+    <style>
+      /* ============================================================
+         omnidraw design tokens — also in /prototype/styles/tokens.css
+         ============================================================ */
+      :root {
+        /* Backgrounds */
+        --bg-page: #08090a;
+        --bg-panel: #0f1011;
+        --bg-surface: #191a1b;
+        --bg-surface-hover: #28282c;
+        --bg-input: rgba(255, 255, 255, 0.02);
+        --bg-input-hover: rgba(255, 255, 255, 0.05);
+
+        /* Text */
+        --text-primary: #f7f8f8;
+        --text-body: #d0d6e0;
+        --text-muted: #8a8f98;
+        --text-subtle: #62666d;
+
+        /* Borders */
+        --border-subtle: rgba(255, 255, 255, 0.05);
+        --border-default: rgba(255, 255, 255, 0.08);
+        --border-strong: rgba(255, 255, 255, 0.12);
+
+        /* Accent — omnidraw cyan */
+        --accent: #06b6d4;
+        --accent-hover: #22d3ee;
+        --accent-bright: #67e8f9;
+        --accent-on-dark: #cffafe;
+
+        /* Status */
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+
+        /* Typography */
+        --font-sans: "Inter Variable", "Inter", -apple-system,
+          BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+        --font-mono: "Berkeley Mono", ui-monospace, "SF Mono", Menlo,
+          "Cascadia Code", Consolas, monospace;
+
+        --text-xs: 11px;
+        --text-sm: 13px;
+        --text-base: 15px;
+        --text-lg: 17px;
+        --text-xl: 22px;
+        --text-2xl: 32px;
+        --text-3xl: 48px;
+        --text-4xl: 72px;
+
+        --lh-tight: 1.15;
+        --lh-snug: 1.25;
+        --lh-normal: 1.5;
+        --lh-relaxed: 1.6;
+
+        --tracking-tight: -1.584px;
+        --tracking-display: -1.056px;
+        --tracking-headline: -0.704px;
+        --tracking-snug: -0.4px;
+        --tracking-normal: 0;
+
+        --weight-regular: 400;
+        --weight-medium: 510;
+        --weight-bold: 590;
+
+        /* Spacing */
+        --space-1: 4px;
+        --space-2: 8px;
+        --space-3: 12px;
+        --space-4: 16px;
+        --space-5: 20px;
+        --space-6: 24px;
+        --space-8: 32px;
+        --space-10: 40px;
+        --space-12: 48px;
+        --space-16: 64px;
+
+        /* Radius */
+        --radius-1: 2px;
+        --radius-2: 4px;
+        --radius-3: 6px;
+        --radius-4: 8px;
+        --radius-5: 12px;
+        --radius-pill: 9999px;
+
+        /* Shadow */
+        --shadow-inset: inset 0 0 12px rgba(0, 0, 0, 0.2);
+        --shadow-soft: 0 2px 4px rgba(0, 0, 0, 0.4);
+        --shadow-modal: 0 16px 48px rgba(0, 0, 0, 0.6),
+          0 0 0 1px rgba(255, 255, 255, 0.08);
+        --shadow-focus: 0 0 0 2px rgba(34, 211, 238, 0.4);
+
+        /* Layout */
+        --sidebar-width: 240px;
+        --header-height: 48px;
+        --chat-width: 380px;
+
+        /* Motion */
+        --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+        --duration-fast: 120ms;
+        --duration-medium: 200ms;
+        --duration-slow: 320ms;
+      }
+
+      /* Reset & base */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: var(--bg-page);
+        color: var(--text-body);
+        font-family: var(--font-sans);
+        font-size: var(--text-base);
+        font-weight: var(--weight-regular);
+        font-feature-settings: "cv01", "ss03";
+        line-height: var(--lh-relaxed);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+      }
+
+      ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--border-default);
+        border-radius: var(--radius-pill);
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: var(--border-strong);
+      }
+
+      ::selection {
+        background: var(--accent);
+        color: var(--bg-page);
+      }
+
+      :focus-visible {
+        outline: none;
+        box-shadow: var(--shadow-focus);
+      }
+
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        margin: 0;
+        color: var(--text-primary);
+        font-weight: var(--weight-bold);
+        line-height: var(--lh-tight);
+      }
+      h1 {
+        font-size: var(--text-3xl);
+        letter-spacing: var(--tracking-display);
+      }
+      h2 {
+        font-size: var(--text-2xl);
+        letter-spacing: var(--tracking-headline);
+      }
+      h3 {
+        font-size: var(--text-xl);
+        letter-spacing: var(--tracking-snug);
+      }
+      h4 {
+        font-size: var(--text-lg);
+      }
+      h5 {
+        font-size: var(--text-base);
+        font-weight: var(--weight-medium);
+      }
+
+      p {
+        margin: 0 0 var(--space-3) 0;
+      }
+
+      a {
+        color: var(--accent-bright);
+        text-decoration: none;
+        transition: color var(--duration-fast) var(--ease-out);
+      }
+      a:hover {
+        color: var(--accent-hover);
+      }
+
+      code,
+      kbd,
+      samp,
+      pre {
+        font-family: var(--font-mono);
+        font-size: 0.92em;
+      }
+
+      hr {
+        border: 0;
+        border-top: 1px solid var(--border-subtle);
+        margin: var(--space-6) 0;
+      }
+
+      /* ============================================================
+         Component primitives
+         ============================================================ */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--space-2);
+        height: 32px;
+        padding: 0 var(--space-3);
+        border: 1px solid var(--border-default);
+        border-radius: var(--radius-3);
+        background: var(--bg-input);
+        color: var(--text-body);
+        font-family: var(--font-sans);
+        font-size: var(--text-sm);
+        font-weight: var(--weight-medium);
+        font-feature-settings: "cv01", "ss03";
+        cursor: pointer;
+        transition: background var(--duration-fast) var(--ease-out),
+          border-color var(--duration-fast) var(--ease-out),
+          color var(--duration-fast) var(--ease-out);
+        white-space: nowrap;
+        user-select: none;
+      }
+      .btn:hover {
+        background: var(--bg-input-hover);
+        border-color: var(--border-strong);
+        color: var(--text-primary);
+      }
+      .btn:active {
+        background: var(--bg-surface-hover);
+      }
+      .btn:disabled,
+      .btn[aria-disabled="true"] {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+
+      .btn--primary {
+        background: var(--accent);
+        border-color: transparent;
+        color: var(--bg-page);
+      }
+      .btn--primary:hover {
+        background: var(--accent-hover);
+        color: var(--bg-page);
+      }
+      .btn--primary:active {
+        background: var(--accent);
+      }
+
+      .btn--ghost {
+        background: transparent;
+        border-color: transparent;
+      }
+      .btn--ghost:hover {
+        background: var(--bg-input-hover);
+        border-color: var(--border-default);
+      }
+
+      .btn--danger {
+        border-color: transparent;
+        background: var(--danger);
+        color: white;
+      }
+      .btn--danger:hover {
+        filter: brightness(1.1);
+        border-color: transparent;
+        color: white;
+      }
+
+      .btn--sm {
+        height: 26px;
+        padding: 0 var(--space-2);
+        font-size: var(--text-xs);
+      }
+      .btn--lg {
+        height: 40px;
+        padding: 0 var(--space-5);
+        font-size: var(--text-base);
+      }
+
+      .btn--icon {
+        width: 32px;
+        padding: 0;
+      }
+      .btn--icon.btn--sm {
+        width: 26px;
+      }
+
+      .input,
+      .textarea {
+        display: block;
+        width: 100%;
+        padding: var(--space-3) var(--space-4);
+        background: var(--bg-input);
+        border: 1px solid var(--border-default);
+        border-radius: var(--radius-3);
+        color: var(--text-body);
+        font-family: var(--font-sans);
+        font-size: var(--text-sm);
+        font-weight: var(--weight-regular);
+        font-feature-settings: "cv01", "ss03";
+        transition: border-color var(--duration-fast) var(--ease-out),
+          background var(--duration-fast) var(--ease-out);
+      }
+      .input::placeholder,
+      .textarea::placeholder {
+        color: var(--text-subtle);
+      }
+      .input:hover,
+      .textarea:hover {
+        background: var(--bg-input-hover);
+      }
+      .input:focus,
+      .textarea:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: var(--shadow-focus);
+      }
+      .input--error,
+      .textarea--error {
+        border-color: var(--danger);
+      }
+      .textarea {
+        min-height: 96px;
+        resize: vertical;
+        line-height: var(--lh-normal);
+      }
+
+      .input-group {
+        position: relative;
+      }
+      .input-group .input {
+        padding-left: 36px;
+      }
+      .input-group .input-icon {
+        position: absolute;
+        top: 50%;
+        left: var(--space-3);
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        pointer-events: none;
+        width: 16px;
+        height: 16px;
+      }
+
+      .label {
+        display: block;
+        margin-bottom: var(--space-2);
+        color: var(--text-muted);
+        font-size: var(--text-xs);
+        font-weight: var(--weight-medium);
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+      }
+
+      .help {
+        margin-top: var(--space-2);
+        color: var(--text-muted);
+        font-size: var(--text-xs);
+      }
+      .help--error {
+        color: var(--danger);
+      }
+
+      .card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-4);
+        padding: var(--space-5);
+      }
+      .card--padless {
+        padding: 0;
+        overflow: hidden;
+      }
+      .card__header {
+        padding: var(--space-4) var(--space-5);
+        border-bottom: 1px solid var(--border-subtle);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .card__body {
+        padding: var(--space-5);
+      }
+      .card__footer {
+        padding: var(--space-4) var(--space-5);
+        border-top: 1px solid var(--border-subtle);
+        display: flex;
+        justify-content: flex-end;
+        gap: var(--space-2);
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-1);
+        height: 20px;
+        padding: 0 var(--space-2);
+        background: var(--bg-input);
+        border: 1px solid var(--border-default);
+        border-radius: var(--radius-pill);
+        color: var(--text-muted);
+        font-size: var(--text-xs);
+        font-weight: var(--weight-medium);
+        letter-spacing: 0.02em;
+      }
+      .badge--success {
+        border-color: rgba(16, 185, 129, 0.3);
+        color: var(--success);
+      }
+      .badge--warning {
+        border-color: rgba(245, 158, 11, 0.3);
+        color: var(--warning);
+      }
+      .badge--danger {
+        border-color: rgba(239, 68, 68, 0.3);
+        color: var(--danger);
+      }
+      .badge--accent {
+        border-color: rgba(34, 211, 238, 0.3);
+        color: var(--accent-bright);
+      }
+
+      .status-dot {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--text-subtle);
+        flex-shrink: 0;
+      }
+      .status-dot--success {
+        background: var(--success);
+        box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+      }
+      .status-dot--warning {
+        background: var(--warning);
+      }
+      .status-dot--danger {
+        background: var(--danger);
+      }
+      .status-dot--connecting {
+        background: var(--accent-bright);
+        animation: pulse 1.5s var(--ease-out) infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.4;
+        }
+      }
+
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        height: 32px;
+        padding: 0 var(--space-3);
+        border-radius: var(--radius-3);
+        color: var(--text-muted);
+        font-size: var(--text-sm);
+        font-weight: var(--weight-medium);
+        cursor: pointer;
+        transition: background var(--duration-fast) var(--ease-out),
+          color var(--duration-fast) var(--ease-out);
+        text-decoration: none;
+      }
+      .nav-item:hover {
+        background: var(--bg-input-hover);
+        color: var(--text-body);
+      }
+      .nav-item--active {
+        background: var(--bg-surface-hover);
+        color: var(--text-primary);
+      }
+      .nav-item__icon {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-subtle);
+      }
+      .nav-item--active .nav-item__icon {
+        color: var(--accent-bright);
+      }
+      .nav-item__label {
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .nav-item__count {
+        color: var(--text-subtle);
+        font-size: var(--text-xs);
+        font-variant-numeric: tabular-nums;
+      }
+
+      .nav-section-title {
+        padding: var(--space-3) var(--space-3) var(--space-2);
+        color: var(--text-subtle);
+        font-size: var(--text-xs);
+        font-weight: var(--weight-medium);
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      /* Chat — Claude/ChatGPT flow: no avatars, no labels.
+         User messages right-aligned in subtle bubble.
+         Agent messages full-width plain text, just the prose. */
+      .chat-thread {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-6);
+        padding: var(--space-6);
+      }
+      .message {
+        display: flex;
+        width: 100%;
+      }
+      .message--user {
+        justify-content: flex-end;
+      }
+      .message--user .message__content {
+        max-width: 78%;
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-5);
+        padding: var(--space-3) var(--space-4);
+        color: var(--text-primary);
+      }
+      .message--agent {
+        justify-content: flex-start;
+      }
+      .message--agent .message__content {
+        max-width: 100%;
+        color: var(--text-body);
+      }
+      .message__content {
+        font-size: var(--text-base);
+        line-height: var(--lh-relaxed);
+      }
+      .message__content p {
+        margin: 0 0 var(--space-3) 0;
+      }
+      .message__content p:last-child {
+        margin: 0;
+      }
+
+      .tool-call {
+        margin-top: var(--space-2);
+        background: var(--bg-input);
+        border: 1px solid var(--border-default);
+        border-radius: var(--radius-3);
+        padding: var(--space-3) var(--space-4);
+        font-family: var(--font-mono);
+        font-size: var(--text-xs);
+      }
+      .tool-call__name {
+        color: var(--accent-bright);
+        font-weight: var(--weight-medium);
+      }
+      .tool-call__args {
+        color: var(--text-muted);
+        margin-top: var(--space-1);
+      }
+
+      .code-block {
+        background: var(--bg-page);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-3);
+        padding: var(--space-3) var(--space-4);
+        font-family: var(--font-mono);
+        font-size: var(--text-xs);
+        color: var(--text-body);
+        overflow-x: auto;
+        line-height: var(--lh-normal);
+      }
+
+      .hstack {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+      }
+      .vstack {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-3);
+      }
+      .spacer {
+        flex: 1;
+      }
+      .muted {
+        color: var(--text-muted);
+      }
+      .subtle {
+        color: var(--text-subtle);
+      }
+      .mono {
+        font-family: var(--font-mono);
+      }
+
+      /* ============================================================
+         Page-specific styles for the design-system showcase
+         ============================================================ */
+      .ds-page {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: var(--space-12) var(--space-8);
+      }
+      .ds-header {
+        margin-bottom: var(--space-12);
+      }
+      .ds-eyebrow {
+        color: var(--accent-bright);
+        font-size: var(--text-xs);
+        font-weight: var(--weight-medium);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: var(--space-3);
+      }
+      .ds-title {
+        font-size: var(--text-3xl);
+        letter-spacing: var(--tracking-display);
+        margin: 0 0 var(--space-3);
+      }
+      .ds-subtitle {
+        font-size: var(--text-lg);
+        color: var(--text-muted);
+        max-width: 56ch;
+      }
+      .ds-section {
+        margin-top: var(--space-12);
+      }
+      .ds-section-title {
+        font-size: var(--text-xl);
+        letter-spacing: var(--tracking-snug);
+        margin-bottom: var(--space-5);
+        padding-bottom: var(--space-3);
+        border-bottom: 1px solid var(--border-subtle);
+      }
+      .ds-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: var(--space-3);
+      }
+      .swatch {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-4);
+        overflow: hidden;
+      }
+      .swatch__chip {
+        height: 64px;
+      }
+      .swatch__meta {
+        padding: var(--space-3);
+        font-size: var(--text-xs);
+      }
+      .swatch__name {
+        color: var(--text-primary);
+        font-weight: var(--weight-medium);
+        margin-bottom: 2px;
+      }
+      .swatch__value {
+        color: var(--text-muted);
+        font-family: var(--font-mono);
+      }
+      .demo-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--space-3);
+        padding: var(--space-4) 0;
+        border-bottom: 1px solid var(--border-subtle);
+      }
+      .demo-row:last-child {
+        border-bottom: 0;
+      }
+      .demo-row__label {
+        width: 140px;
+        color: var(--text-muted);
+        font-size: var(--text-xs);
+        font-weight: var(--weight-medium);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      .type-row {
+        padding: var(--space-3) 0;
+        display: grid;
+        grid-template-columns: 100px 80px 1fr;
+        align-items: baseline;
+        gap: var(--space-4);
+        border-bottom: 1px solid var(--border-subtle);
+      }
+      .type-row:last-child {
+        border-bottom: 0;
+      }
+      .type-row__token,
+      .type-row__size {
+        color: var(--text-muted);
+        font-family: var(--font-mono);
+        font-size: var(--text-xs);
+      }
+      .preview-card {
+        background: var(--bg-panel);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-4);
+        padding: var(--space-4);
+      }
+      .preview-card + .preview-card {
+        margin-top: var(--space-3);
+      }
+      .nav-demo {
+        max-width: 240px;
+        background: var(--bg-panel);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-4);
+        padding: var(--space-3);
+      }
+      .section-nav {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: rgba(8, 9, 10, 0.85);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border-subtle);
+        padding: var(--space-3) var(--space-8);
+        display: flex;
+        align-items: center;
+        gap: var(--space-4);
+        font-size: var(--text-xs);
+      }
+      .section-nav a {
+        color: var(--text-muted);
+        font-weight: var(--weight-medium);
+      }
+      .section-nav a:hover {
+        color: var(--text-primary);
+      }
+      .brand-mark {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        color: var(--text-primary);
+        font-weight: var(--weight-bold);
+      }
+      .brand-mark__dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--accent);
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="section-nav">
+      <span class="brand-mark"
+        ><span class="brand-mark__dot"></span>omnidraw</span
+      >
+      <span class="muted">/</span>
+      <span class="muted">design system</span>
+      <span class="spacer"></span>
+      <a href="#colors">colors</a>
+      <a href="#type">type</a>
+      <a href="#space">space</a>
+      <a href="#radius">radius</a>
+      <a href="#buttons">buttons</a>
+      <a href="#inputs">inputs</a>
+      <a href="#cards">cards</a>
+      <a href="#chat">chat</a>
+      <a href="#nav">nav</a>
+      <a href="#status">status</a>
+    </nav>
+
+    <div class="ds-page">
+      <header class="ds-header">
+        <div class="ds-eyebrow">design system · v0.1</div>
+        <h1 class="ds-title">omnidraw</h1>
+        <p class="ds-subtitle">
+          A teacher's cockpit for live YouTube classes — branded Excalidraw
+          canvas, agent-driven visualizations, single-purpose tooling. Adapted
+          from
+          <a
+            href="https://github.com/nexu-io/open-design/tree/main/design-systems/linear-app"
+            >linear-app</a
+          >
+          (Apache-2.0). Cyan accent (chalk on blackboard) replaces Linear's
+          violet.
+        </p>
+      </header>
+
+      <section id="colors" class="ds-section">
+        <h2 class="ds-section-title">Colors</h2>
+
+        <h4 class="muted" style="margin-bottom: var(--space-3)">Backgrounds</h4>
+        <div class="ds-grid">
+          <div class="swatch">
+            <div class="swatch__chip" style="background: #08090a"></div>
+            <div class="swatch__meta">
+              <div class="swatch__name">--bg-page</div>
+              <div class="swatch__value">#08090a</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__chip" style="background: #0f1011"></div>
+            <div class="swatch__meta">
+              <div class="swatch__name">--bg-panel</div>
+              <div class="swatch__value">#0f1011</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__chip" style="background: #191a1b"></div>
+            <div class="swatch__meta">
+              <div class="swatch__name">--bg-surface</div>
+              <div class="swatch__value">#191a1b</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__chip" style="background: #28282c"></div>
+            <div class="swatch__meta">
+              <div class="swatch__name">--bg-surface-hover</div>
+              <div class="swatch__value">#28282c</div>
+            </div>
+          </div>
+        </div>
+
+        <h4 class="muted" style="margin: var(--space-6) 0 var(--space-3)">
+          Text
+        </h4>
+        <div class="preview-card">
+          <p
+            style="color: var(--text-primary); font-size: var(--text-lg); margin: 0 0 var(--space-2)"
+          >
+            Primary — headings, the most luminous text.
+            <span class="mono muted">#f7f8f8</span>
+          </p>
+          <p style="color: var(--text-body); margin: 0 0 var(--space-2)">
+            Body — regular reading text, the workhorse.
+            <span class="mono muted">#d0d6e0</span>
+          </p>
+          <p style="color: var(--text-muted); margin: 0 0 var(--space-2)">
+            Muted — labels, placeholders, secondary info.
+            <span class="mono muted">#8a8f98</span>
+          </p>
+          <p style="color: var(--text-subtle); margin: 0">
+            Subtle — disabled, hints, timestamps.
+            <span class="mono muted">#62666d</span>
+          </p>
+        </div>
+
+        <h4 class="muted" style="margin: var(--space-6) 0 var(--space-3)">
+          Accent (cyan, chalk-on-blackboard)
+        </h4>
+        <div class="ds-grid">
+          <div class="swatch">
+            <div class="swatch__chip" style="background: #06b6d4"></div>
+            <div class="swatch__meta">
+              <div class="swatch__name">--accent</div>
+              <div class="swatch__value">#06b6d4</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__chip" style="background: #22d3ee"></div>
+            <div class="swatch__meta">
+              <div class="swatch__name">--accent-hover</div>
+              <div class="swatch__value">#22d3ee</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch__chip" style="background: #67e8f9"></div>
+            <div class="swatch__meta">
+              <div class="swatch__name">--accent-bright</div>
+              <div class="swatch__value">#67e8f9</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="type" class="ds-section">
+        <h2 class="ds-section-title">Typography</h2>
+        <p class="muted" style="margin-bottom: var(--space-5)">
+          Inter Variable, with OpenType <span class="mono">cv01</span> +
+          <span class="mono">ss03</span>. Three weights only:
+          <span class="mono">400 / 510 / 590</span>.
+        </p>
+        <div class="preview-card">
+          <div class="type-row">
+            <div class="type-row__token">--text-4xl</div>
+            <div class="type-row__size">72 / 590</div>
+            <div
+              style="font-size: 72px; font-weight: 590; letter-spacing: -1.584px; line-height: 1.05; color: var(--text-primary)"
+            >
+              Hero display
+            </div>
+          </div>
+          <div class="type-row">
+            <div class="type-row__token">--text-3xl</div>
+            <div class="type-row__size">48 / 590</div>
+            <div
+              style="font-size: 48px; font-weight: 590; letter-spacing: -1.056px; line-height: 1.15; color: var(--text-primary)"
+            >
+              Display title
+            </div>
+          </div>
+          <div class="type-row">
+            <div class="type-row__token">--text-2xl</div>
+            <div class="type-row__size">32 / 590</div>
+            <div
+              style="font-size: 32px; font-weight: 590; letter-spacing: -0.704px; line-height: 1.25; color: var(--text-primary)"
+            >
+              Page title
+            </div>
+          </div>
+          <div class="type-row">
+            <div class="type-row__token">--text-xl</div>
+            <div class="type-row__size">22 / 590</div>
+            <div
+              style="font-size: 22px; font-weight: 590; letter-spacing: -0.4px; color: var(--text-primary)"
+            >
+              Section heading
+            </div>
+          </div>
+          <div class="type-row">
+            <div class="type-row__token">--text-lg</div>
+            <div class="type-row__size">17 / 510</div>
+            <div
+              style="font-size: 17px; font-weight: 510; color: var(--text-primary)"
+            >
+              Subhead / lead
+            </div>
+          </div>
+          <div class="type-row">
+            <div class="type-row__token">--text-base</div>
+            <div class="type-row__size">15 / 400</div>
+            <div style="font-size: 15px; color: var(--text-body)">
+              Body — the workhorse for paragraphs and chat.
+            </div>
+          </div>
+          <div class="type-row">
+            <div class="type-row__token">--text-sm</div>
+            <div class="type-row__size">13 / 510</div>
+            <div
+              style="font-size: 13px; font-weight: 510; color: var(--text-body)"
+            >
+              UI label / button
+            </div>
+          </div>
+          <div class="type-row">
+            <div class="type-row__token">--text-xs</div>
+            <div class="type-row__size">11 / 510</div>
+            <div
+              style="font-size: 11px; font-weight: 510; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em"
+            >
+              Eyebrow / micro label
+            </div>
+          </div>
+          <div class="type-row">
+            <div class="type-row__token">mono</div>
+            <div class="type-row__size">13 / 400</div>
+            <div
+              class="mono"
+              style="font-size: 13px; color: var(--text-body)"
+            >
+              code → /v1/messages
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="space" class="ds-section">
+        <h2 class="ds-section-title">Spacing</h2>
+        <p class="muted" style="margin-bottom: var(--space-5)">
+          Base 8px. Primary rhythm: 8 / 16 / 24 / 32. Tokens 4 → 64.
+        </p>
+        <div class="preview-card vstack" style="gap: var(--space-2)">
+          <div class="hstack">
+            <div class="type-row__token" style="width: 80px">--space-1</div>
+            <div style="height: 8px; width: 4px; background: var(--accent)"></div>
+            <div class="muted" style="font-size: var(--text-xs)">4px</div>
+          </div>
+          <div class="hstack">
+            <div class="type-row__token" style="width: 80px">--space-2</div>
+            <div style="height: 8px; width: 8px; background: var(--accent)"></div>
+            <div class="muted" style="font-size: var(--text-xs)">8px</div>
+          </div>
+          <div class="hstack">
+            <div class="type-row__token" style="width: 80px">--space-3</div>
+            <div style="height: 8px; width: 12px; background: var(--accent)"></div>
+            <div class="muted" style="font-size: var(--text-xs)">12px</div>
+          </div>
+          <div class="hstack">
+            <div class="type-row__token" style="width: 80px">--space-4</div>
+            <div style="height: 8px; width: 16px; background: var(--accent)"></div>
+            <div class="muted" style="font-size: var(--text-xs)">16px</div>
+          </div>
+          <div class="hstack">
+            <div class="type-row__token" style="width: 80px">--space-6</div>
+            <div style="height: 8px; width: 24px; background: var(--accent)"></div>
+            <div class="muted" style="font-size: var(--text-xs)">24px</div>
+          </div>
+          <div class="hstack">
+            <div class="type-row__token" style="width: 80px">--space-8</div>
+            <div style="height: 8px; width: 32px; background: var(--accent)"></div>
+            <div class="muted" style="font-size: var(--text-xs)">32px</div>
+          </div>
+          <div class="hstack">
+            <div class="type-row__token" style="width: 80px">--space-12</div>
+            <div style="height: 8px; width: 48px; background: var(--accent)"></div>
+            <div class="muted" style="font-size: var(--text-xs)">48px</div>
+          </div>
+          <div class="hstack">
+            <div class="type-row__token" style="width: 80px">--space-16</div>
+            <div style="height: 8px; width: 64px; background: var(--accent)"></div>
+            <div class="muted" style="font-size: var(--text-xs)">64px</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="radius" class="ds-section">
+        <h2 class="ds-section-title">Radius</h2>
+        <div
+          class="preview-card hstack"
+          style="gap: var(--space-5); flex-wrap: wrap"
+        >
+          <div class="vstack" style="align-items: center; gap: var(--space-2)">
+            <div
+              style="width: 48px; height: 48px; background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 2px"
+            ></div>
+            <div class="muted" style="font-size: var(--text-xs)">
+              --radius-1 · 2px
+            </div>
+          </div>
+          <div class="vstack" style="align-items: center; gap: var(--space-2)">
+            <div
+              style="width: 48px; height: 48px; background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 4px"
+            ></div>
+            <div class="muted" style="font-size: var(--text-xs)">
+              --radius-2 · 4px
+            </div>
+          </div>
+          <div class="vstack" style="align-items: center; gap: var(--space-2)">
+            <div
+              style="width: 48px; height: 48px; background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 6px"
+            ></div>
+            <div class="muted" style="font-size: var(--text-xs)">
+              --radius-3 · 6px
+            </div>
+          </div>
+          <div class="vstack" style="align-items: center; gap: var(--space-2)">
+            <div
+              style="width: 48px; height: 48px; background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 8px"
+            ></div>
+            <div class="muted" style="font-size: var(--text-xs)">
+              --radius-4 · 8px
+            </div>
+          </div>
+          <div class="vstack" style="align-items: center; gap: var(--space-2)">
+            <div
+              style="width: 48px; height: 48px; background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 12px"
+            ></div>
+            <div class="muted" style="font-size: var(--text-xs)">
+              --radius-5 · 12px
+            </div>
+          </div>
+          <div class="vstack" style="align-items: center; gap: var(--space-2)">
+            <div
+              style="width: 48px; height: 48px; background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 9999px"
+            ></div>
+            <div class="muted" style="font-size: var(--text-xs)">
+              --radius-pill
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="buttons" class="ds-section">
+        <h2 class="ds-section-title">Buttons</h2>
+        <div class="preview-card">
+          <div class="demo-row">
+            <div class="demo-row__label">Primary</div>
+            <button class="btn btn--primary btn--sm">Save</button>
+            <button class="btn btn--primary">Connect Omnizen</button>
+            <button class="btn btn--primary btn--lg">Start session</button>
+          </div>
+          <div class="demo-row">
+            <div class="demo-row__label">Secondary</div>
+            <button class="btn btn--sm">Cancel</button>
+            <button class="btn">New project</button>
+            <button class="btn btn--lg">Continue</button>
+          </div>
+          <div class="demo-row">
+            <div class="demo-row__label">Ghost</div>
+            <button class="btn btn--ghost btn--sm">Settings</button>
+            <button class="btn btn--ghost">Open file</button>
+            <button class="btn btn--ghost btn--lg">Skip</button>
+          </div>
+          <div class="demo-row">
+            <div class="demo-row__label">Danger</div>
+            <button class="btn btn--danger btn--sm">Delete</button>
+            <button class="btn btn--danger">Remove project</button>
+          </div>
+          <div class="demo-row">
+            <div class="demo-row__label">Disabled</div>
+            <button class="btn" disabled>Not ready</button>
+            <button class="btn btn--primary" disabled>Verifying…</button>
+          </div>
+          <div class="demo-row">
+            <div class="demo-row__label">Icon-only</div>
+            <button class="btn btn--icon btn--sm" aria-label="Add">+</button>
+            <button class="btn btn--icon" aria-label="Settings">⚙</button>
+            <button class="btn btn--ghost btn--icon" aria-label="More">
+              ⋯
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section id="inputs" class="ds-section">
+        <h2 class="ds-section-title">Inputs</h2>
+        <div class="preview-card vstack" style="gap: var(--space-5)">
+          <div>
+            <label class="label" for="i1">Project name</label>
+            <input
+              class="input"
+              id="i1"
+              placeholder="e.g. Linear Algebra 101"
+            />
+          </div>
+          <div>
+            <label class="label" for="i2">Omnizen API key</label>
+            <input
+              class="input mono"
+              id="i2"
+              placeholder="omn_…"
+              type="password"
+            />
+            <div class="help">
+              Stored in your OS keychain. Never sent anywhere except
+              api.omnizen.ai.
+            </div>
+          </div>
+          <div>
+            <label class="label" for="i3">Search</label>
+            <div class="input-group">
+              <span class="input-icon">⌕</span>
+              <input
+                class="input"
+                id="i3"
+                placeholder="Search threads, scenes…"
+              />
+            </div>
+          </div>
+          <div>
+            <label class="label" for="i4">With error</label>
+            <input class="input input--error" id="i4" value="omn_invalid" />
+            <div class="help help--error">
+              Key rejected by Omnizen. Verify it at omnizen.ai/dashboard/keys.
+            </div>
+          </div>
+          <div>
+            <label class="label" for="i5">Textarea</label>
+            <textarea class="textarea" id="i5" placeholder="Describe what to draw…">Make a 4-step flowchart for backpropagation, with the loss at the bottom and gradients flowing up.</textarea>
+          </div>
+        </div>
+      </section>
+
+      <section id="cards" class="ds-section">
+        <h2 class="ds-section-title">Cards & containers</h2>
+        <div
+          class="ds-grid"
+          style="grid-template-columns: 1fr 1fr; gap: var(--space-4)"
+        >
+          <div class="card">
+            <h4 style="margin-bottom: var(--space-2)">Basic card</h4>
+            <p class="muted" style="font-size: var(--text-sm); margin: 0">
+              For loose content with consistent padding. Used in dashboards and
+              list rows.
+            </p>
+          </div>
+
+          <div class="card card--padless">
+            <div class="card__header">
+              <div class="hstack">
+                <span class="status-dot status-dot--success"></span>
+                <strong style="font-size: 13px; color: var(--text-primary)"
+                  >Linear Algebra 101</strong
+                >
+              </div>
+              <button class="btn btn--ghost btn--sm">Open</button>
+            </div>
+            <div class="card__body">
+              <p class="muted" style="margin: 0; font-size: 13px">
+                12 scenes · 3 threads · last edited 4h ago
+              </p>
+            </div>
+            <div class="card__footer">
+              <button class="btn btn--ghost btn--sm">Settings</button>
+              <button class="btn btn--primary btn--sm">Resume</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="chat" class="ds-section">
+        <h2 class="ds-section-title">Chat messages</h2>
+        <p class="muted" style="margin-bottom: var(--space-5)">
+          Claude/ChatGPT flow — no avatars, no author labels. User on the
+          right in a subtle bubble; agent flows full-width.
+        </p>
+        <div
+          class="chat-thread"
+          style="background: var(--bg-panel); border: 1px solid var(--border-subtle); border-radius: var(--radius-4);"
+        >
+          <article class="message message--user">
+            <div class="message__content">
+              <p>
+                Make a 4-step flowchart of backpropagation. Show the loss at
+                the bottom and gradients flowing up.
+              </p>
+            </div>
+          </article>
+          <article class="message message--agent">
+            <div class="message__content">
+              <p>
+                Drafting the four nodes: forward pass → loss → gradient →
+                update. I'll arrange them vertically with a return arrow on
+                the right edge.
+              </p>
+              <div class="tool-call">
+                <span class="tool-call__name">create_scene</span>
+                <div class="tool-call__args">
+                  title: "Backprop · 4-step", elements: 9
+                </div>
+              </div>
+            </div>
+          </article>
+          <article class="message message--agent">
+            <div class="message__content">
+              <p>
+                Done. Scene saved to
+                <span class="mono muted">backprop-4-step.excalidraw</span>.
+                Want color coding for forward vs backward?
+              </p>
+            </div>
+          </article>
+          <article class="message message--user">
+            <div class="message__content">
+              <p>Yes — green for forward, magenta for backward.</p>
+            </div>
+          </article>
+          <article class="message message--agent">
+            <div class="message__content">
+              <p>
+                Updating strokes now. Forward pass arrows in green, gradient
+                arrows in magenta. The loss node stays neutral.
+              </p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="nav" class="ds-section">
+        <h2 class="ds-section-title">Sidebar nav</h2>
+        <div class="nav-demo">
+          <div class="nav-section-title">Workspace</div>
+          <a class="nav-item nav-item--active" href="#">
+            <span class="nav-item__icon">▣</span>
+            <span class="nav-item__label">Linear Algebra 101</span>
+            <span class="nav-item__count">12</span>
+          </a>
+          <a class="nav-item" href="#">
+            <span class="nav-item__icon">▣</span>
+            <span class="nav-item__label">Backprop deep dive</span>
+            <span class="nav-item__count">7</span>
+          </a>
+          <a class="nav-item" href="#">
+            <span class="nav-item__icon">▣</span>
+            <span class="nav-item__label">DSP for musicians</span>
+            <span class="nav-item__count">3</span>
+          </a>
+          <div class="nav-section-title">Recent threads</div>
+          <a class="nav-item" href="#">
+            <span class="nav-item__icon">◰</span>
+            <span class="nav-item__label">Eigenvalues intro</span>
+          </a>
+          <a class="nav-item" href="#">
+            <span class="nav-item__icon">◰</span>
+            <span class="nav-item__label">Gradient descent visual</span>
+          </a>
+        </div>
+      </section>
+
+      <section id="status" class="ds-section">
+        <h2 class="ds-section-title">Status &amp; badges</h2>
+        <div class="preview-card">
+          <div class="demo-row">
+            <div class="demo-row__label">Status dots</div>
+            <span class="hstack" style="gap: var(--space-2)"
+              ><span class="status-dot status-dot--success"></span
+              >connected</span
+            >
+            <span class="hstack" style="gap: var(--space-2)"
+              ><span class="status-dot status-dot--connecting"></span
+              >connecting</span
+            >
+            <span class="hstack" style="gap: var(--space-2)"
+              ><span class="status-dot status-dot--warning"></span>limited</span
+            >
+            <span class="hstack" style="gap: var(--space-2)"
+              ><span class="status-dot status-dot--danger"></span>offline</span
+            >
+          </div>
+          <div class="demo-row">
+            <div class="demo-row__label">Badges</div>
+            <span class="badge">draft</span>
+            <span class="badge badge--accent">live</span>
+            <span class="badge badge--success">saved</span>
+            <span class="badge badge--warning">paused</span>
+            <span class="badge badge--danger">error</span>
+          </div>
+          <div class="demo-row">
+            <div class="demo-row__label">Code block</div>
+            <pre class="code-block" style="margin: 0; flex: 1">curl https://api.omnizen.ai/v1/messages \
+  -H "x-api-key: $OMNIZEN_KEY" \
+  -d '{"model":"claude-3-5-sonnet","messages":[…]}'</pre>
+          </div>
+        </div>
+      </section>
+
+      <footer
+        style="margin-top: var(--space-16); padding-top: var(--space-6); border-top: 1px solid var(--border-subtle); color: var(--text-subtle); font-size: var(--text-xs)"
+      >
+        omnidraw · design system v0.1 · adapted from
+        <a
+          href="https://github.com/nexu-io/open-design/tree/main/design-systems/linear-app"
+          >linear-app</a
+        >
+        · Apache-2.0 source · AGPL-3.0 omnidraw additions
+      </footer>
+    </div>
+  </body>
+</html>

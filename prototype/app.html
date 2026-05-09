@@ -1,0 +1,3369 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>omnidraw — full prototype</title>
+    <link rel="preconnect" href="https://rsms.me/" />
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
+    <style>
+      /* ============================================================
+         omnidraw design tokens
+         ============================================================ */
+      :root {
+        --bg-page: #08090a;
+        --bg-panel: #0f1011;
+        --bg-surface: #191a1b;
+        --bg-surface-hover: #28282c;
+        --bg-input: rgba(255, 255, 255, 0.02);
+        --bg-input-hover: rgba(255, 255, 255, 0.05);
+
+        --text-primary: #f7f8f8;
+        --text-body: #d0d6e0;
+        --text-muted: #8a8f98;
+        --text-subtle: #62666d;
+
+        --border-subtle: rgba(255, 255, 255, 0.05);
+        --border-default: rgba(255, 255, 255, 0.08);
+        --border-strong: rgba(255, 255, 255, 0.12);
+
+        --accent: #06b6d4;
+        --accent-hover: #22d3ee;
+        --accent-bright: #67e8f9;
+        --accent-on-dark: #cffafe;
+        --accent-glow: rgba(34, 211, 238, 0.15);
+
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+
+        --magenta: #ec4899;
+
+        --font-sans: "Inter Variable", "Inter", -apple-system,
+          BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+        --font-mono: "Berkeley Mono", ui-monospace, "SF Mono", Menlo, monospace;
+        --font-hand: "Caveat", "Comic Sans MS", cursive;
+
+        --text-xs: 11px;
+        --text-sm: 13px;
+        --text-base: 15px;
+        --text-lg: 17px;
+        --text-xl: 22px;
+        --text-2xl: 32px;
+        --text-3xl: 48px;
+        --text-4xl: 72px;
+
+        --space-1: 4px;
+        --space-2: 8px;
+        --space-3: 12px;
+        --space-4: 16px;
+        --space-5: 20px;
+        --space-6: 24px;
+        --space-8: 32px;
+        --space-10: 40px;
+        --space-12: 48px;
+        --space-16: 64px;
+
+        --radius-1: 2px;
+        --radius-2: 4px;
+        --radius-3: 6px;
+        --radius-4: 8px;
+        --radius-5: 12px;
+        --radius-pill: 9999px;
+
+        --shadow-soft: 0 2px 4px rgba(0, 0, 0, 0.4);
+        --shadow-modal: 0 16px 48px rgba(0, 0, 0, 0.6),
+          0 0 0 1px rgba(255, 255, 255, 0.08);
+        --shadow-focus: 0 0 0 2px rgba(34, 211, 238, 0.4);
+
+        --sidebar-width: 240px;
+        --header-height: 44px;
+        --chat-width: 420px;
+
+        --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+        --duration-fast: 120ms;
+        --duration-medium: 200ms;
+      }
+
+      /* Reset & base */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        background: var(--bg-page);
+        color: var(--text-body);
+        font-family: var(--font-sans);
+        font-size: var(--text-base);
+        font-weight: 400;
+        font-feature-settings: "cv01", "ss03";
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      body {
+        padding-top: 32px; /* leave room for fixed devbar */
+        overflow: hidden;
+      }
+      ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--border-default);
+        border-radius: var(--radius-pill);
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: var(--border-strong);
+      }
+      ::selection {
+        background: var(--accent);
+        color: var(--bg-page);
+      }
+      :focus-visible {
+        outline: none;
+        box-shadow: var(--shadow-focus);
+      }
+      h1,
+      h2,
+      h3,
+      h4,
+      h5 {
+        margin: 0;
+        color: var(--text-primary);
+        font-weight: 590;
+        line-height: 1.15;
+      }
+      h1 {
+        font-size: var(--text-3xl);
+        letter-spacing: -1.056px;
+      }
+      h2 {
+        font-size: var(--text-2xl);
+        letter-spacing: -0.704px;
+      }
+      h3 {
+        font-size: var(--text-xl);
+        letter-spacing: -0.4px;
+      }
+      h4 {
+        font-size: var(--text-lg);
+      }
+      h5 {
+        font-size: var(--text-base);
+        font-weight: 510;
+      }
+      p {
+        margin: 0 0 var(--space-3) 0;
+      }
+      a {
+        color: var(--accent-bright);
+        text-decoration: none;
+      }
+      a:hover {
+        color: var(--accent-hover);
+      }
+      code,
+      kbd,
+      pre {
+        font-family: var(--font-mono);
+        font-size: 0.92em;
+      }
+      kbd {
+        display: inline-block;
+        padding: 0 6px;
+        background: var(--bg-input);
+        border: 1px solid var(--border-default);
+        border-radius: var(--radius-2);
+        color: var(--text-muted);
+        font-size: var(--text-xs);
+      }
+      .muted {
+        color: var(--text-muted);
+      }
+      .subtle {
+        color: var(--text-subtle);
+      }
+      .mono {
+        font-family: var(--font-mono);
+      }
+      .hstack {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+      }
+      .vstack {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-3);
+      }
+      .spacer {
+        flex: 1;
+      }
+
+      /* ============================================================
+         Buttons
+         ============================================================ */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--space-2);
+        height: 32px;
+        padding: 0 var(--space-3);
+        border: 1px solid var(--border-default);
+        border-radius: var(--radius-3);
+        background: var(--bg-input);
+        color: var(--text-body);
+        font-family: var(--font-sans);
+        font-size: var(--text-sm);
+        font-weight: 510;
+        font-feature-settings: "cv01", "ss03";
+        cursor: pointer;
+        transition: all var(--duration-fast) var(--ease-out);
+        white-space: nowrap;
+        user-select: none;
+      }
+      .btn:hover {
+        background: var(--bg-input-hover);
+        border-color: var(--border-strong);
+        color: var(--text-primary);
+      }
+      .btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+      .btn--primary {
+        background: var(--accent);
+        border-color: transparent;
+        color: var(--bg-page);
+      }
+      .btn--primary:hover {
+        background: var(--accent-hover);
+        color: var(--bg-page);
+      }
+      .btn--ghost {
+        background: transparent;
+        border-color: transparent;
+      }
+      .btn--ghost:hover {
+        background: var(--bg-input-hover);
+      }
+      .btn--danger {
+        background: var(--danger);
+        border-color: transparent;
+        color: white;
+      }
+      .btn--sm {
+        height: 26px;
+        padding: 0 var(--space-2);
+        font-size: var(--text-xs);
+      }
+      .btn--lg {
+        height: 40px;
+        padding: 0 var(--space-5);
+        font-size: var(--text-base);
+      }
+      .btn--icon {
+        width: 32px;
+        padding: 0;
+      }
+      .btn--icon.btn--sm {
+        width: 26px;
+      }
+      .btn--icon.btn--lg {
+        width: 40px;
+      }
+
+      /* ============================================================
+         Inputs
+         ============================================================ */
+      .input,
+      .textarea {
+        display: block;
+        width: 100%;
+        padding: var(--space-3) var(--space-4);
+        background: var(--bg-input);
+        border: 1px solid var(--border-default);
+        border-radius: var(--radius-3);
+        color: var(--text-body);
+        font-family: var(--font-sans);
+        font-size: var(--text-sm);
+        font-feature-settings: "cv01", "ss03";
+        transition: all var(--duration-fast) var(--ease-out);
+      }
+      .input::placeholder,
+      .textarea::placeholder {
+        color: var(--text-subtle);
+      }
+      .input:hover,
+      .textarea:hover {
+        background: var(--bg-input-hover);
+      }
+      .input:focus,
+      .textarea:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: var(--shadow-focus);
+      }
+      .input--error,
+      .textarea--error {
+        border-color: var(--danger);
+      }
+      .textarea {
+        min-height: 96px;
+        resize: vertical;
+        line-height: 1.5;
+      }
+      .input-group {
+        position: relative;
+      }
+      .input-group .input {
+        padding-left: 36px;
+      }
+      .input-group .input-icon {
+        position: absolute;
+        top: 50%;
+        left: var(--space-3);
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        pointer-events: none;
+      }
+      .label {
+        display: block;
+        margin-bottom: var(--space-2);
+        color: var(--text-muted);
+        font-size: var(--text-xs);
+        font-weight: 510;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+      }
+      .help {
+        margin-top: var(--space-2);
+        color: var(--text-muted);
+        font-size: var(--text-xs);
+      }
+      .help--error {
+        color: var(--danger);
+      }
+      .help--success {
+        color: var(--success);
+      }
+
+      /* ============================================================
+         Cards / badges / status
+         ============================================================ */
+      .card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-4);
+        padding: var(--space-5);
+      }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-1);
+        height: 20px;
+        padding: 0 var(--space-2);
+        background: var(--bg-input);
+        border: 1px solid var(--border-default);
+        border-radius: var(--radius-pill);
+        color: var(--text-muted);
+        font-size: var(--text-xs);
+        font-weight: 510;
+      }
+      .badge--accent {
+        border-color: rgba(34, 211, 238, 0.3);
+        color: var(--accent-bright);
+      }
+      .badge--success {
+        border-color: rgba(16, 185, 129, 0.3);
+        color: var(--success);
+      }
+      .badge--warning {
+        border-color: rgba(245, 158, 11, 0.3);
+        color: var(--warning);
+      }
+      .badge--danger {
+        border-color: rgba(239, 68, 68, 0.3);
+        color: var(--danger);
+      }
+      .status-dot {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--text-subtle);
+        flex-shrink: 0;
+      }
+      .status-dot--success {
+        background: var(--success);
+        box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+      }
+      .status-dot--warning {
+        background: var(--warning);
+      }
+      .status-dot--danger {
+        background: var(--danger);
+      }
+      .status-dot--connecting {
+        background: var(--accent-bright);
+        animation: pulse 1.5s var(--ease-out) infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.4;
+        }
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .spinner {
+        width: 14px;
+        height: 14px;
+        border: 2px solid var(--border-default);
+        border-top-color: var(--accent-bright);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+
+      /* ============================================================
+         Sidebar nav
+         ============================================================ */
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        height: 30px;
+        padding: 0 var(--space-3);
+        border-radius: var(--radius-3);
+        color: var(--text-muted);
+        font-size: var(--text-sm);
+        font-weight: 510;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all var(--duration-fast) var(--ease-out);
+      }
+      .nav-item:hover {
+        background: var(--bg-input-hover);
+        color: var(--text-body);
+      }
+      .nav-item--active {
+        background: var(--bg-surface-hover);
+        color: var(--text-primary);
+      }
+      .nav-item__icon {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+        color: var(--text-subtle);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .nav-item--active .nav-item__icon {
+        color: var(--accent-bright);
+      }
+      .nav-item__label {
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .nav-item__count {
+        color: var(--text-subtle);
+        font-size: var(--text-xs);
+        font-variant-numeric: tabular-nums;
+      }
+      .nav-section-title {
+        padding: var(--space-3) var(--space-3) var(--space-2);
+        color: var(--text-subtle);
+        font-size: var(--text-xs);
+        font-weight: 510;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      /* ============================================================
+         Chat (Claude/ChatGPT flow — no avatars, no labels)
+         ============================================================ */
+      .chat-thread {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-6);
+        padding: var(--space-6) var(--space-6) var(--space-12);
+      }
+      .message {
+        display: flex;
+        width: 100%;
+      }
+      .message--user {
+        justify-content: flex-end;
+      }
+      .message--user .message__content {
+        max-width: 78%;
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-5);
+        padding: var(--space-3) var(--space-4);
+        color: var(--text-primary);
+      }
+      .message--agent {
+        justify-content: flex-start;
+      }
+      .message--agent .message__content {
+        max-width: 100%;
+        color: var(--text-body);
+      }
+      .message__content {
+        font-size: var(--text-base);
+        line-height: 1.6;
+      }
+      .message__content p {
+        margin: 0 0 var(--space-3) 0;
+      }
+      .message__content p:last-child {
+        margin: 0;
+      }
+
+      .tool-call {
+        margin-top: var(--space-3);
+        background: var(--bg-input);
+        border: 1px solid var(--border-default);
+        border-radius: var(--radius-3);
+        padding: var(--space-3) var(--space-4);
+        font-size: var(--text-sm);
+      }
+      .tool-call__head {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        color: var(--text-muted);
+      }
+      .tool-call__name {
+        color: var(--accent-bright);
+        font-family: var(--font-mono);
+        font-size: var(--text-xs);
+        font-weight: 510;
+      }
+      .tool-call__args {
+        margin-top: var(--space-2);
+        color: var(--text-muted);
+        font-family: var(--font-mono);
+        font-size: var(--text-xs);
+      }
+      .tool-call__success {
+        margin-left: auto;
+        color: var(--success);
+        font-size: var(--text-xs);
+      }
+      .tool-call--drawing {
+        padding: 0;
+        overflow: hidden;
+      }
+      .tool-call--drawing .tool-call__head {
+        padding: var(--space-3) var(--space-4);
+        border-bottom: 1px solid var(--border-subtle);
+      }
+      .tool-call__preview {
+        background: #0a0a0a;
+        padding: var(--space-4);
+        height: 240px;
+        position: relative;
+      }
+
+      /* ============================================================
+         Composer
+         ============================================================ */
+      .composer {
+        position: sticky;
+        bottom: 0;
+        background: linear-gradient(
+          to top,
+          var(--bg-page) 60%,
+          rgba(8, 9, 10, 0)
+        );
+        padding: var(--space-3) var(--space-6) var(--space-4);
+      }
+      .composer__inner {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-default);
+        border-radius: var(--radius-5);
+        padding: var(--space-3) var(--space-3) var(--space-2);
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-2);
+      }
+      .composer__inner:focus-within {
+        border-color: var(--accent);
+        box-shadow: var(--shadow-focus);
+      }
+      .composer__textarea {
+        background: transparent;
+        border: 0;
+        padding: var(--space-2) var(--space-3);
+        color: var(--text-primary);
+        font-family: var(--font-sans);
+        font-size: var(--text-base);
+        font-feature-settings: "cv01", "ss03";
+        resize: none;
+        outline: none;
+        min-height: 48px;
+        max-height: 240px;
+      }
+      .composer__textarea::placeholder {
+        color: var(--text-subtle);
+      }
+      .composer__row {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+      }
+      .composer__skill {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        height: 26px;
+        padding: 0 var(--space-3);
+        background: var(--bg-input);
+        border: 1px solid var(--border-default);
+        border-radius: var(--radius-pill);
+        color: var(--text-muted);
+        font-size: var(--text-xs);
+        font-weight: 510;
+        cursor: pointer;
+      }
+      .composer__skill:hover {
+        background: var(--bg-input-hover);
+        color: var(--text-body);
+      }
+      .composer__skill--active {
+        background: rgba(34, 211, 238, 0.08);
+        border-color: rgba(34, 211, 238, 0.3);
+        color: var(--accent-bright);
+      }
+
+      /* ============================================================
+         App shell layout
+         ============================================================ */
+      .app-shell {
+        display: grid;
+        grid-template-columns: var(--sidebar-width) 1fr;
+        height: 100%;
+        background: var(--bg-page);
+      }
+      .app-sidebar {
+        background: var(--bg-panel);
+        border-right: 1px solid var(--border-subtle);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      .app-sidebar__head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--space-3) var(--space-4);
+        height: var(--header-height);
+        border-bottom: 1px solid var(--border-subtle);
+      }
+      .app-sidebar__body {
+        flex: 1;
+        overflow-y: auto;
+        padding: var(--space-3);
+      }
+      .app-sidebar__foot {
+        border-top: 1px solid var(--border-subtle);
+        padding: var(--space-2);
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        color: var(--text-primary);
+        font-weight: 590;
+        font-size: var(--text-sm);
+      }
+      .brand__dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--accent);
+        box-shadow: 0 0 8px rgba(34, 211, 238, 0.5);
+      }
+
+      .app-main {
+        display: grid;
+        grid-template-columns: 1fr var(--chat-width);
+        overflow: hidden;
+      }
+      .app-canvas-pane {
+        background: var(--bg-panel);
+        border-right: 1px solid var(--border-subtle);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      .app-chat-pane {
+        background: var(--bg-page);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      .app-pane-head {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        padding: 0 var(--space-4);
+        height: var(--header-height);
+        border-bottom: 1px solid var(--border-subtle);
+        flex-shrink: 0;
+      }
+      .app-canvas-pane .app-pane-head {
+        background: var(--bg-panel);
+      }
+      .app-chat-pane .app-pane-head {
+        background: var(--bg-page);
+      }
+      .app-pane-title {
+        font-size: var(--text-sm);
+        font-weight: 510;
+        color: var(--text-primary);
+      }
+      .canvas-stage {
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+        background:
+          radial-gradient(
+            circle at 50% 50%,
+            #111213 0%,
+            var(--bg-panel) 100%
+          );
+      }
+      .chat-scroll {
+        flex: 1;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* Scene queue strip at bottom of canvas */
+      .scene-queue {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        padding: var(--space-3) var(--space-4);
+        border-top: 1px solid var(--border-subtle);
+        background: var(--bg-panel);
+        overflow-x: auto;
+        flex-shrink: 0;
+      }
+      .scene-thumb {
+        flex-shrink: 0;
+        width: 96px;
+        height: 60px;
+        border: 1px solid var(--border-default);
+        border-radius: var(--radius-3);
+        background: #0a0a0a;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        transition: all var(--duration-fast) var(--ease-out);
+      }
+      .scene-thumb:hover {
+        border-color: var(--border-strong);
+      }
+      .scene-thumb--active {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 2px var(--accent-glow);
+      }
+      .scene-thumb__num {
+        position: absolute;
+        top: 4px;
+        left: 4px;
+        font-size: var(--text-xs);
+        color: var(--text-subtle);
+        font-family: var(--font-mono);
+      }
+      .scene-thumb__add {
+        flex-shrink: 0;
+        width: 96px;
+        height: 60px;
+        border: 1px dashed var(--border-default);
+        border-radius: var(--radius-3);
+        color: var(--text-subtle);
+        background: transparent;
+        cursor: pointer;
+        font-size: var(--text-xl);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .scene-thumb__add:hover {
+        border-color: var(--accent);
+        color: var(--accent-bright);
+      }
+
+      /* ============================================================
+         Onboarding shell
+         ============================================================ */
+      .onb-shell {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background:
+          radial-gradient(
+            circle at 30% 20%,
+            rgba(34, 211, 238, 0.06) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 70% 80%,
+            rgba(34, 211, 238, 0.04) 0%,
+            transparent 50%
+          ),
+          var(--bg-page);
+      }
+      .onb-card {
+        width: 480px;
+        max-width: 92vw;
+        background: var(--bg-surface);
+        border: 1px solid var(--border-default);
+        border-radius: var(--radius-5);
+        padding: var(--space-10);
+        box-shadow: var(--shadow-modal);
+      }
+      .onb-eyebrow {
+        color: var(--accent-bright);
+        font-size: var(--text-xs);
+        font-weight: 510;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: var(--space-4);
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+      }
+      .onb-title {
+        font-size: var(--text-2xl);
+        margin: 0 0 var(--space-3);
+        letter-spacing: -0.704px;
+      }
+      .onb-sub {
+        color: var(--text-muted);
+        margin: 0 0 var(--space-8);
+        font-size: var(--text-base);
+      }
+      .onb-step-indicator {
+        display: flex;
+        gap: var(--space-2);
+        margin-top: var(--space-8);
+      }
+      .onb-step-indicator__dot {
+        height: 4px;
+        flex: 1;
+        border-radius: 2px;
+        background: var(--border-default);
+      }
+      .onb-step-indicator__dot--done {
+        background: var(--accent-bright);
+      }
+      .onb-step-indicator__dot--active {
+        background: var(--accent);
+      }
+      .onb-actions {
+        display: flex;
+        gap: var(--space-2);
+        margin-top: var(--space-8);
+      }
+
+      /* ============================================================
+         Modal
+         ============================================================ */
+      .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+      }
+      .modal {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-default);
+        border-radius: var(--radius-5);
+        box-shadow: var(--shadow-modal);
+        width: 560px;
+        max-width: 92vw;
+        max-height: 80vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      .modal__head {
+        padding: var(--space-5);
+        border-bottom: 1px solid var(--border-subtle);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .modal__title {
+        font-size: var(--text-lg);
+        font-weight: 590;
+        color: var(--text-primary);
+      }
+      .modal__body {
+        padding: var(--space-3);
+        overflow-y: auto;
+        flex: 1;
+      }
+      .modal__foot {
+        padding: var(--space-4) var(--space-5);
+        border-top: 1px solid var(--border-subtle);
+        display: flex;
+        justify-content: flex-end;
+        gap: var(--space-2);
+      }
+
+      .skill-row {
+        display: flex;
+        gap: var(--space-3);
+        padding: var(--space-3);
+        border-radius: var(--radius-3);
+        cursor: pointer;
+        transition: background var(--duration-fast) var(--ease-out);
+      }
+      .skill-row:hover {
+        background: var(--bg-input-hover);
+      }
+      .skill-row--active {
+        background: var(--bg-surface-hover);
+      }
+      .skill-row__icon {
+        width: 32px;
+        height: 32px;
+        flex-shrink: 0;
+        background: var(--bg-input);
+        border: 1px solid var(--border-default);
+        border-radius: var(--radius-3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--accent-bright);
+        font-size: var(--text-sm);
+      }
+      .skill-row__body {
+        flex: 1;
+        min-width: 0;
+      }
+      .skill-row__name {
+        color: var(--text-primary);
+        font-size: var(--text-sm);
+        font-weight: 510;
+      }
+      .skill-row__desc {
+        color: var(--text-muted);
+        font-size: var(--text-xs);
+        margin-top: 2px;
+        line-height: 1.4;
+      }
+      .skill-row__kbd {
+        align-self: center;
+        flex-shrink: 0;
+      }
+
+      /* ============================================================
+         Empty states
+         ============================================================ */
+      .empty {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: var(--space-8);
+      }
+      .empty__inner {
+        max-width: 400px;
+        text-align: center;
+      }
+      .empty__icon {
+        width: 56px;
+        height: 56px;
+        margin: 0 auto var(--space-5);
+        background: var(--bg-surface);
+        border: 1px solid var(--border-default);
+        border-radius: var(--radius-5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--accent-bright);
+        font-size: var(--text-xl);
+      }
+      .empty__title {
+        font-size: var(--text-lg);
+        margin: 0 0 var(--space-2);
+        color: var(--text-primary);
+        font-weight: 590;
+      }
+      .empty__desc {
+        color: var(--text-muted);
+        font-size: var(--text-sm);
+        margin: 0 0 var(--space-5);
+      }
+
+      /* ============================================================
+         Presentation mode
+         ============================================================ */
+      .pres-shell {
+        height: 100%;
+        background: #050505;
+        display: flex;
+        flex-direction: column;
+      }
+      .pres-stage {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: var(--space-10);
+        position: relative;
+      }
+      .pres-canvas {
+        width: 100%;
+        max-width: 1200px;
+        aspect-ratio: 16 / 9;
+        background: #0a0a0a;
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-4);
+        box-shadow: 0 24px 80px rgba(0, 0, 0, 0.8);
+        position: relative;
+        overflow: hidden;
+      }
+      .pres-hud-top {
+        position: absolute;
+        top: var(--space-4);
+        left: 0;
+        right: 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 var(--space-6);
+        opacity: 0.6;
+      }
+      .pres-hud-top:hover {
+        opacity: 1;
+      }
+      .pres-counter {
+        font-family: var(--font-mono);
+        color: var(--text-muted);
+        font-size: var(--text-sm);
+        font-variant-numeric: tabular-nums;
+      }
+      .pres-strip {
+        background: rgba(8, 9, 10, 0.85);
+        backdrop-filter: blur(12px);
+        border-top: 1px solid var(--border-subtle);
+        padding: var(--space-3) var(--space-6);
+        display: flex;
+        gap: var(--space-2);
+        overflow-x: auto;
+      }
+      .pres-strip .scene-thumb {
+        width: 120px;
+        height: 68px;
+      }
+
+      /* ============================================================
+         Settings page
+         ============================================================ */
+      .settings-page {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: var(--space-12) var(--space-6);
+        overflow-y: auto;
+        height: 100%;
+      }
+      .settings-section {
+        padding: var(--space-6) 0;
+        border-bottom: 1px solid var(--border-subtle);
+      }
+      .settings-section:last-child {
+        border-bottom: 0;
+      }
+      .settings-section__title {
+        font-size: var(--text-lg);
+        margin: 0 0 var(--space-2);
+      }
+      .settings-section__desc {
+        color: var(--text-muted);
+        font-size: var(--text-sm);
+        margin: 0 0 var(--space-5);
+        max-width: 60ch;
+      }
+      .settings-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: var(--space-5);
+        padding: var(--space-4) 0;
+        border-top: 1px solid var(--border-subtle);
+      }
+      .settings-row:first-child {
+        border-top: 0;
+      }
+      .settings-row__label {
+        flex: 1;
+        max-width: 320px;
+      }
+      .settings-row__name {
+        color: var(--text-primary);
+        font-size: var(--text-sm);
+        font-weight: 510;
+      }
+      .settings-row__hint {
+        color: var(--text-muted);
+        font-size: var(--text-xs);
+        margin-top: 4px;
+      }
+      .settings-row__control {
+        flex: 1;
+        max-width: 280px;
+      }
+
+      /* Toggle */
+      .toggle {
+        position: relative;
+        width: 36px;
+        height: 20px;
+        background: var(--bg-input);
+        border: 1px solid var(--border-default);
+        border-radius: var(--radius-pill);
+        cursor: pointer;
+        transition: background var(--duration-fast) var(--ease-out);
+      }
+      .toggle::after {
+        content: "";
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 14px;
+        height: 14px;
+        background: var(--text-muted);
+        border-radius: 50%;
+        transition: all var(--duration-fast) var(--ease-out);
+      }
+      .toggle--on {
+        background: var(--accent);
+        border-color: transparent;
+      }
+      .toggle--on::after {
+        left: 18px;
+        background: var(--bg-page);
+      }
+
+      /* Select */
+      .select {
+        appearance: none;
+        background: var(--bg-input);
+        border: 1px solid var(--border-default);
+        border-radius: var(--radius-3);
+        padding: 0 var(--space-8) 0 var(--space-3);
+        height: 32px;
+        color: var(--text-body);
+        font-family: var(--font-sans);
+        font-size: var(--text-sm);
+        cursor: pointer;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238a8f98' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right var(--space-3) center;
+      }
+
+      /* ============================================================
+         Inline alert / error banner
+         ============================================================ */
+      .alert {
+        display: flex;
+        gap: var(--space-3);
+        padding: var(--space-3) var(--space-4);
+        border-radius: var(--radius-3);
+        background: var(--bg-input);
+        border: 1px solid var(--border-default);
+      }
+      .alert--danger {
+        background: rgba(239, 68, 68, 0.08);
+        border-color: rgba(239, 68, 68, 0.3);
+      }
+      .alert--warning {
+        background: rgba(245, 158, 11, 0.06);
+        border-color: rgba(245, 158, 11, 0.3);
+      }
+      .alert--info {
+        background: rgba(34, 211, 238, 0.06);
+        border-color: rgba(34, 211, 238, 0.3);
+      }
+      .alert__icon {
+        flex-shrink: 0;
+        width: 18px;
+        height: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .alert--danger .alert__icon {
+        color: var(--danger);
+      }
+      .alert--warning .alert__icon {
+        color: var(--warning);
+      }
+      .alert--info .alert__icon {
+        color: var(--accent-bright);
+      }
+      .alert__body {
+        flex: 1;
+        font-size: var(--text-sm);
+      }
+      .alert__title {
+        color: var(--text-primary);
+        font-weight: 510;
+        margin-bottom: 2px;
+      }
+      .alert__desc {
+        color: var(--text-muted);
+      }
+
+      /* ============================================================
+         Top devbar (screen switcher — not part of the real app)
+         ============================================================ */
+      .devbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border-default);
+        padding: 6px var(--space-4);
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        font-size: var(--text-xs);
+        height: 32px;
+      }
+      .devbar__brand {
+        color: var(--accent-bright);
+        font-weight: 590;
+        letter-spacing: 0.04em;
+      }
+      .devbar__nav {
+        display: flex;
+        gap: 2px;
+        flex-wrap: wrap;
+      }
+      .devbar__nav a {
+        color: var(--text-muted);
+        padding: 3px 8px;
+        border-radius: var(--radius-2);
+        font-weight: 510;
+        text-decoration: none;
+        transition: all var(--duration-fast) var(--ease-out);
+        font-family: var(--font-mono);
+      }
+      .devbar__nav a:hover {
+        background: var(--bg-input);
+        color: var(--text-body);
+      }
+      .devbar__nav a.is-active {
+        background: var(--accent);
+        color: var(--bg-page);
+      }
+
+      .screen {
+        display: none;
+        height: 100%; /* body already has padding-top: 32px for the devbar */
+      }
+      .screen.is-active {
+        display: block;
+      }
+
+      /* ============================================================
+         Hand-drawn canvas SVG styling
+         ============================================================ */
+      .scene-svg .stroke {
+        stroke: var(--text-body);
+        stroke-width: 1.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        fill: none;
+      }
+      .scene-svg .stroke--dim {
+        stroke: var(--text-subtle);
+        stroke-dasharray: 4 3;
+      }
+      .scene-svg .stroke--accent {
+        stroke: var(--accent-bright);
+      }
+      .scene-svg .stroke--success {
+        stroke: var(--success);
+      }
+      .scene-svg .stroke--magenta {
+        stroke: var(--magenta);
+      }
+      .scene-svg .label {
+        fill: var(--text-body);
+        font-family: var(--font-hand), "Comic Sans MS", cursive;
+        font-size: 16px;
+      }
+      .scene-svg .label--accent {
+        fill: var(--accent-bright);
+      }
+      .scene-svg .label--small {
+        font-size: 12px;
+        fill: var(--text-muted);
+      }
+
+      /* ============================================================
+         Responsive
+         ============================================================ */
+
+      /* Tablet (1024px and below) — shrink sidebar + chat */
+      @media (max-width: 1024px) {
+        :root {
+          --sidebar-width: 200px;
+          --chat-width: 360px;
+        }
+        .onb-card {
+          padding: var(--space-8);
+        }
+      }
+
+      /* Tablet portrait + mobile (900px and below) — single column app */
+      @media (max-width: 900px) {
+        body {
+          /* Devbar scrolls horizontally so the page isn't pushed */
+          padding-top: 36px;
+        }
+        .devbar {
+          height: 36px;
+          padding: 4px var(--space-3);
+          gap: var(--space-2);
+          overflow-x: auto;
+          overflow-y: hidden;
+          flex-wrap: nowrap;
+          white-space: nowrap;
+          -webkit-overflow-scrolling: touch;
+        }
+        .devbar__nav {
+          flex-wrap: nowrap;
+        }
+
+        /* Hide sidebar on mobile — replace with top app bar */
+        .app-shell {
+          grid-template-columns: 1fr;
+        }
+        .app-sidebar {
+          display: none;
+        }
+
+        /* Stack canvas + chat vertically (canvas on top, chat below) */
+        .app-main {
+          grid-template-columns: 1fr;
+          grid-template-rows: minmax(0, 45vh) minmax(0, 1fr);
+        }
+        .app-canvas-pane {
+          border-right: 0;
+          border-bottom: 1px solid var(--border-subtle);
+        }
+        /* Show a small mobile bar at the top of the canvas pane with project name */
+        .app-pane-head {
+          padding: 0 var(--space-3);
+          gap: var(--space-2);
+          height: 40px;
+        }
+
+        /* Onboarding tighter */
+        .onb-card {
+          width: 100%;
+          padding: var(--space-6);
+          border-radius: var(--radius-4);
+        }
+        .onb-shell {
+          padding: var(--space-3);
+        }
+        .onb-title {
+          font-size: var(--text-xl);
+        }
+        .onb-sub {
+          font-size: var(--text-sm);
+          margin-bottom: var(--space-6);
+        }
+        /* Welcome two-up feature grid → single column */
+        .onb-card > div[style*="grid-template-columns: 1fr 1fr"] {
+          grid-template-columns: 1fr !important;
+        }
+
+        /* Settings: stack label + control */
+        .settings-row {
+          flex-direction: column;
+          align-items: stretch;
+          gap: var(--space-2);
+        }
+        .settings-row__label,
+        .settings-row__control {
+          max-width: 100%;
+        }
+        .settings-row__control {
+          display: flex !important;
+          justify-content: flex-start !important;
+        }
+        .settings-page {
+          padding: var(--space-6) var(--space-4);
+        }
+
+        /* Modals: near full-width */
+        .modal {
+          width: 100% !important;
+          max-width: 96vw;
+          max-height: 90vh;
+          border-radius: var(--radius-4);
+        }
+
+        /* Composer doesn't sit on top of empty-state suggestions */
+        .composer {
+          padding: var(--space-2) var(--space-3) var(--space-3);
+        }
+        .chat-thread {
+          padding: var(--space-4) var(--space-4) var(--space-10);
+          gap: var(--space-5);
+        }
+        .message__content {
+          font-size: var(--text-sm);
+        }
+        .message--user .message__content {
+          max-width: 85%;
+        }
+
+        /* Presentation: tighter */
+        .pres-stage {
+          padding: var(--space-4);
+        }
+        .pres-strip {
+          padding: var(--space-2) var(--space-3);
+        }
+        .pres-strip .scene-thumb {
+          width: 80px;
+          height: 46px;
+        }
+        .pres-hud-top {
+          padding: 0 var(--space-3);
+        }
+
+        /* Empty-state suggestion buttons in chat — full width */
+        .empty {
+          padding: var(--space-6) var(--space-3);
+        }
+
+        /* Devbar nav: smaller */
+        .devbar__nav a {
+          padding: 2px 6px;
+          font-size: 10px;
+        }
+        .devbar__brand {
+          flex-shrink: 0;
+        }
+      }
+
+      /* Phone (480px and below) — squeeze everything tighter */
+      @media (max-width: 480px) {
+        :root {
+          --header-height: 40px;
+        }
+        .onb-shell {
+          padding: var(--space-2);
+        }
+        .onb-card {
+          padding: var(--space-5);
+        }
+        .onb-actions {
+          flex-direction: column;
+        }
+        .onb-actions .btn {
+          width: 100%;
+        }
+        .app-pane-head .badge {
+          display: none;
+        }
+        .app-pane-head .app-pane-title {
+          font-size: var(--text-xs);
+        }
+        .scene-queue {
+          padding: var(--space-2) var(--space-3);
+        }
+        .scene-thumb,
+        .scene-thumb__add {
+          width: 72px;
+          height: 46px;
+        }
+        /* Hide some chrome to keep mobile clean */
+        .pres-strip span.muted {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ============================================================
+         DEVBAR — only here for the prototype, not in the real app
+         ============================================================ -->
+    <nav class="devbar">
+      <span class="devbar__brand">omnidraw</span>
+      <span class="muted">·</span>
+      <span class="muted">prototype</span>
+      <span class="spacer"></span>
+      <div class="devbar__nav">
+        <a href="#welcome">01 welcome</a>
+        <a href="#connect">02 connect</a>
+        <a href="#connecting">02b connecting</a>
+        <a href="#create-project">03 first project</a>
+        <a href="#projects">04 projects</a>
+        <a href="#empty-project">05 empty proj</a>
+        <a href="#session">06 session</a>
+        <a href="#session-drawing">07 drawing</a>
+        <a href="#skill-picker">08 skills</a>
+        <a href="#presentation">09 present</a>
+        <a href="#settings">10 settings</a>
+        <a href="#errors">11 errors</a>
+        <a href="#loading">12 loading</a>
+      </div>
+    </nav>
+
+    <!-- ============================================================
+         Reusable SVG defs — referenced by canvas mockups
+         ============================================================ -->
+    <svg width="0" height="0" style="position: absolute" aria-hidden="true">
+      <defs>
+        <marker
+          id="arrow"
+          viewBox="0 0 10 10"
+          refX="8"
+          refY="5"
+          markerWidth="6"
+          markerHeight="6"
+          orient="auto-start-reverse"
+        >
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" />
+        </marker>
+        <marker
+          id="arrow-accent"
+          viewBox="0 0 10 10"
+          refX="8"
+          refY="5"
+          markerWidth="6"
+          markerHeight="6"
+          orient="auto-start-reverse"
+        >
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#67e8f9" />
+        </marker>
+        <marker
+          id="arrow-magenta"
+          viewBox="0 0 10 10"
+          refX="8"
+          refY="5"
+          markerWidth="6"
+          markerHeight="6"
+          orient="auto-start-reverse"
+        >
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#ec4899" />
+        </marker>
+        <marker
+          id="arrow-success"
+          viewBox="0 0 10 10"
+          refX="8"
+          refY="5"
+          markerWidth="6"
+          markerHeight="6"
+          orient="auto-start-reverse"
+        >
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#10b981" />
+        </marker>
+      </defs>
+    </svg>
+
+    <!-- ============================================================
+         01 — WELCOME
+         ============================================================ -->
+    <section class="screen" id="welcome">
+      <div class="onb-shell">
+        <div class="onb-card">
+          <div class="onb-eyebrow">
+            <span class="brand__dot"></span>omnidraw
+          </div>
+          <h1 class="onb-title">Welcome to Omnidraw</h1>
+          <p class="onb-sub">
+            Generate teaching diagrams from natural language, refine them on
+            the canvas, and present live. Built for educators running live
+            sessions.
+          </p>
+
+          <div
+            style="
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: var(--space-3);
+              margin-bottom: var(--space-3);
+            "
+          >
+            <div
+              style="
+                background: var(--bg-input);
+                border: 1px solid var(--border-subtle);
+                border-radius: var(--radius-3);
+                padding: var(--space-4);
+              "
+            >
+              <div
+                style="
+                  color: var(--accent-bright);
+                  font-size: var(--text-xl);
+                  margin-bottom: var(--space-2);
+                "
+              >
+                ◰
+              </div>
+              <div
+                style="
+                  font-size: var(--text-sm);
+                  font-weight: 510;
+                  color: var(--text-primary);
+                  margin-bottom: 2px;
+                "
+              >
+                Generate from chat
+              </div>
+              <div style="font-size: var(--text-xs); color: var(--text-muted)">
+                Describe what you need; the canvas updates in real time.
+              </div>
+            </div>
+            <div
+              style="
+                background: var(--bg-input);
+                border: 1px solid var(--border-subtle);
+                border-radius: var(--radius-3);
+                padding: var(--space-4);
+              "
+            >
+              <div
+                style="
+                  color: var(--accent-bright);
+                  font-size: var(--text-xl);
+                  margin-bottom: var(--space-2);
+                "
+              >
+                ▶
+              </div>
+              <div
+                style="
+                  font-size: var(--text-sm);
+                  font-weight: 510;
+                  color: var(--text-primary);
+                  margin-bottom: 2px;
+                "
+              >
+                Built for live sessions
+              </div>
+              <div style="font-size: var(--text-xs); color: var(--text-muted)">
+                Press <kbd>F</kbd> for fullscreen. Use <kbd>←</kbd>
+                <kbd>→</kbd> to navigate scenes.
+              </div>
+            </div>
+          </div>
+
+          <div class="onb-actions">
+            <button class="btn btn--primary btn--lg" style="flex: 1">
+              Get started →
+            </button>
+          </div>
+
+          <div class="onb-step-indicator">
+            <span class="onb-step-indicator__dot onb-step-indicator__dot--active"></span>
+            <span class="onb-step-indicator__dot"></span>
+            <span class="onb-step-indicator__dot"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         02 — CONNECT OMNIZEN
+         ============================================================ -->
+    <section class="screen" id="connect">
+      <div class="onb-shell">
+        <div class="onb-card">
+          <div class="onb-eyebrow">step 2 · connect</div>
+          <h2 class="onb-title">Connect your Omnizen account</h2>
+          <p class="onb-sub">
+            Omnidraw routes all generation through
+            <a href="https://omnizen.ai" target="_blank">Omnizen</a>, which
+            provides access to DeepSeek, Kimi, GLM, Qwen, and MiniMax under a
+            single subscription.
+          </p>
+
+          <a
+            href="#connecting"
+            class="btn btn--primary btn--lg"
+            style="width: 100%; margin-bottom: var(--space-2)"
+          >
+            <span class="brand__dot" style="background: var(--bg-page)"></span>
+            Connect with Omnizen →
+          </a>
+          <div class="help" style="text-align: center; margin-bottom: var(--space-5)">
+            Opens omnizen.ai in your browser. We'll bring you back in a few seconds.
+          </div>
+
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              gap: var(--space-3);
+              color: var(--text-subtle);
+              font-size: var(--text-xs);
+              margin: var(--space-5) 0;
+            "
+          >
+            <span style="flex: 1; height: 1px; background: var(--border-subtle)"></span>
+            <span>OR</span>
+            <span style="flex: 1; height: 1px; background: var(--border-subtle)"></span>
+          </div>
+
+          <details style="margin-bottom: var(--space-3)">
+            <summary
+              style="
+                cursor: pointer;
+                padding: var(--space-2) 0;
+                color: var(--text-muted);
+                font-size: var(--text-sm);
+                font-weight: 510;
+                list-style: none;
+              "
+            >
+              I already have an API key →
+            </summary>
+            <div style="margin-top: var(--space-4)">
+              <label class="label" for="key-input">Omnizen API key</label>
+              <input
+                class="input mono"
+                id="key-input"
+                type="password"
+                placeholder="omn_live_…"
+              />
+              <div class="help">
+                Issue a key from
+                <a href="https://omnizen.ai/dashboard/keys" target="_blank"
+                  >omnizen.ai/dashboard/keys</a
+                >. Stored in your OS keychain.
+              </div>
+              <button
+                class="btn btn--lg"
+                style="width: 100%; margin-top: var(--space-3)"
+              >
+                Verify and continue
+              </button>
+            </div>
+          </details>
+
+          <div class="alert alert--info" style="margin-bottom: var(--space-3)">
+            <span class="alert__icon">ℹ</span>
+            <div class="alert__body">
+              <div class="alert__title">Don't have an account?</div>
+              <div class="alert__desc">
+                <a href="https://omnizen.ai/sign-up" target="_blank">Sign up for free</a>
+                — includes $1 in credit, no card required.
+              </div>
+            </div>
+          </div>
+
+          <div class="onb-actions">
+            <button class="btn btn--ghost btn--lg" style="flex: 1">Back</button>
+            <button class="btn btn--ghost btn--lg" style="flex: 1">Skip</button>
+          </div>
+
+          <div class="onb-step-indicator">
+            <span class="onb-step-indicator__dot onb-step-indicator__dot--done"></span>
+            <span class="onb-step-indicator__dot onb-step-indicator__dot--active"></span>
+            <span class="onb-step-indicator__dot"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         02b — CONNECTING (OAuth-style flow in progress)
+         ============================================================ -->
+    <section class="screen" id="connecting">
+      <div class="onb-shell">
+        <div class="onb-card" style="text-align: center">
+          <div class="onb-eyebrow" style="justify-content: center">
+            <span class="spinner"></span>
+            connecting
+          </div>
+          <h2 class="onb-title">Waiting for omnizen.ai…</h2>
+          <p class="onb-sub" style="margin-bottom: var(--space-5)">
+            We've opened omnizen.ai in your browser. Sign in if needed, then
+            confirm the code below matches what you see in the browser.
+          </p>
+
+          <div
+            style="
+              background: var(--bg-input);
+              border: 1px solid var(--accent);
+              box-shadow: 0 0 24px rgba(34, 211, 238, 0.1);
+              border-radius: var(--radius-4);
+              padding: var(--space-5);
+              text-align: center;
+              margin-bottom: var(--space-5);
+            "
+          >
+            <div
+              class="muted"
+              style="
+                font-size: var(--text-xs);
+                font-weight: 510;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                margin-bottom: var(--space-3);
+              "
+            >
+              Verification code
+            </div>
+            <div
+              class="mono"
+              style="
+                font-size: 36px;
+                font-weight: 590;
+                letter-spacing: 4px;
+                color: var(--accent-bright);
+                font-variant-numeric: tabular-nums;
+              "
+            >
+              W7K2-MJ9F
+            </div>
+            <div
+              class="muted"
+              style="font-size: var(--text-xs); margin-top: var(--space-3)"
+            >
+              Compare with the code shown on omnizen.ai before approving.
+            </div>
+          </div>
+
+          <div
+            style="
+              background: var(--bg-input);
+              border: 1px solid var(--border-default);
+              border-radius: var(--radius-3);
+              padding: var(--space-5);
+              text-align: left;
+              margin-bottom: var(--space-5);
+            "
+          >
+            <div
+              style="
+                display: flex;
+                gap: var(--space-3);
+                align-items: flex-start;
+                margin-bottom: var(--space-3);
+              "
+            >
+              <span style="color: var(--success); font-size: var(--text-sm)">✓</span>
+              <div>
+                <div
+                  style="font-size: var(--text-sm); color: var(--text-primary); font-weight: 510"
+                >
+                  Browser opened
+                </div>
+                <div class="muted" style="font-size: var(--text-xs)">
+                  omnizen.ai/connect?app=omnidraw
+                </div>
+              </div>
+            </div>
+            <div
+              style="
+                display: flex;
+                gap: var(--space-3);
+                align-items: flex-start;
+                margin-bottom: var(--space-3);
+              "
+            >
+              <span class="spinner" style="margin-top: 4px"></span>
+              <div>
+                <div
+                  style="font-size: var(--text-sm); color: var(--text-primary); font-weight: 510"
+                >
+                  Awaiting your confirmation
+                </div>
+                <div class="muted" style="font-size: var(--text-xs)">
+                  Click "Connect Omnidraw" in your browser
+                </div>
+              </div>
+            </div>
+            <div
+              style="
+                display: flex;
+                gap: var(--space-3);
+                align-items: flex-start;
+                opacity: 0.4;
+              "
+            >
+              <span class="muted" style="font-size: var(--text-sm)">○</span>
+              <div>
+                <div
+                  style="font-size: var(--text-sm); color: var(--text-primary); font-weight: 510"
+                >
+                  Receive and store API key
+                </div>
+                <div class="muted" style="font-size: var(--text-xs)">
+                  Saved to your OS keychain
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="help" style="margin-bottom: var(--space-6)">
+            Browser didn't open?
+            <a href="https://omnizen.ai/connect?app=omnidraw" target="_blank"
+              >Open the link manually</a
+            >.
+          </div>
+
+          <div class="onb-actions" style="justify-content: center">
+            <a href="#connect" class="btn btn--ghost btn--lg" style="flex: 1"
+              >Cancel</a
+            >
+          </div>
+
+          <div class="onb-step-indicator">
+            <span class="onb-step-indicator__dot onb-step-indicator__dot--done"></span>
+            <span class="onb-step-indicator__dot onb-step-indicator__dot--active"></span>
+            <span class="onb-step-indicator__dot"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         03 — CREATE FIRST PROJECT
+         ============================================================ -->
+    <section class="screen" id="create-project">
+      <div class="onb-shell">
+        <div class="onb-card">
+          <div class="onb-eyebrow">step 3 · first project</div>
+          <h2 class="onb-title">Create your first project</h2>
+          <p class="onb-sub">
+            Each project is a folder on your machine. Scenes are saved as
+            <span class="mono muted">.excalidraw</span> files; conversation
+            threads and metadata are stored in SQLite alongside them. You can
+            rename or relocate any project later.
+          </p>
+
+          <div style="margin-bottom: var(--space-5)">
+            <label class="label" for="proj-name">Project name</label>
+            <input
+              class="input"
+              id="proj-name"
+              value="Linear Algebra 101"
+              autofocus
+            />
+          </div>
+
+          <div style="margin-bottom: var(--space-5)">
+            <label class="label" for="proj-desc">Description (optional)</label>
+            <textarea class="textarea" id="proj-desc">Undergraduate course covering vector spaces, eigenvalues, and applications. Visual-first format for live sessions.</textarea>
+          </div>
+
+          <div style="margin-bottom: var(--space-3)">
+            <label class="label">Default skill</label>
+            <select class="select" style="width: 100%">
+              <option>Diagram explainer (default)</option>
+              <option>Scene deck builder</option>
+              <option>Refine current scene</option>
+              <option>None — free conversation</option>
+            </select>
+            <div class="help">Skills shape how the agent approaches each request. You can change skills at any time.</div>
+          </div>
+
+          <div class="onb-actions">
+            <button class="btn btn--ghost btn--lg" style="flex: 1">Back</button>
+            <button class="btn btn--primary btn--lg" style="flex: 2">
+              Create project →
+            </button>
+          </div>
+
+          <div class="onb-step-indicator">
+            <span class="onb-step-indicator__dot onb-step-indicator__dot--done"></span>
+            <span class="onb-step-indicator__dot onb-step-indicator__dot--done"></span>
+            <span class="onb-step-indicator__dot onb-step-indicator__dot--active"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         04 — PROJECT LIST (sidebar focus)
+         ============================================================ -->
+    <section class="screen" id="projects">
+      <div class="app-shell">
+        <aside class="app-sidebar">
+          <div class="app-sidebar__head">
+            <span class="brand"
+              ><span class="brand__dot"></span>omnidraw</span
+            >
+            <button class="btn btn--ghost btn--icon btn--sm" aria-label="New project">+</button>
+          </div>
+          <div class="app-sidebar__body">
+            <div class="nav-section-title">
+              <span>Projects</span>
+              <span class="muted">3</span>
+            </div>
+            <a class="nav-item" href="#empty-project">
+              <span class="nav-item__icon">▣</span>
+              <span class="nav-item__label">Linear Algebra 101</span>
+              <span class="nav-item__count">12</span>
+            </a>
+            <a class="nav-item" href="#session">
+              <span class="nav-item__icon">▣</span>
+              <span class="nav-item__label">Backprop deep dive</span>
+              <span class="nav-item__count">7</span>
+            </a>
+            <a class="nav-item" href="#">
+              <span class="nav-item__icon">▣</span>
+              <span class="nav-item__label">DSP for musicians</span>
+              <span class="nav-item__count">3</span>
+            </a>
+
+            <div class="nav-section-title" style="margin-top: var(--space-5)">
+              <span>Recent</span>
+            </div>
+            <a class="nav-item" href="#">
+              <span class="nav-item__icon">◰</span>
+              <span class="nav-item__label">Eigenvalues intro</span>
+            </a>
+            <a class="nav-item" href="#">
+              <span class="nav-item__icon">◰</span>
+              <span class="nav-item__label">Gradient descent visual</span>
+            </a>
+            <a class="nav-item" href="#">
+              <span class="nav-item__icon">◰</span>
+              <span class="nav-item__label">Convolution as sliding</span>
+            </a>
+          </div>
+          <div class="app-sidebar__foot">
+            <a class="nav-item" href="#settings">
+              <span class="nav-item__icon">⚙</span>
+              <span class="nav-item__label">Settings</span>
+            </a>
+            <a class="nav-item" href="#">
+              <span class="nav-item__icon"
+                ><span class="status-dot status-dot--success"></span
+              ></span>
+              <span class="nav-item__label muted" style="font-size: var(--text-xs)">Omnizen · Pro plan</span>
+            </a>
+          </div>
+        </aside>
+
+        <main class="empty">
+          <div class="empty__inner">
+            <div class="empty__icon">▣</div>
+            <h3 class="empty__title">Select a project</h3>
+            <p class="empty__desc">
+              Or create a new one. Projects are stored in
+              <span class="mono">~/omnidraw/projects/</span>.
+            </p>
+            <div class="hstack" style="justify-content: center">
+              <button class="btn">Open recent</button>
+              <button class="btn btn--primary">+ New project</button>
+            </div>
+          </div>
+        </main>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         05 — EMPTY PROJECT
+         ============================================================ -->
+    <section class="screen" id="empty-project">
+      <div class="app-shell">
+        <aside class="app-sidebar">
+          <div class="app-sidebar__head">
+            <span class="brand"
+              ><span class="brand__dot"></span>omnidraw</span
+            >
+            <button class="btn btn--ghost btn--icon btn--sm">+</button>
+          </div>
+          <div class="app-sidebar__body">
+            <div class="nav-section-title"><span>Projects</span></div>
+            <a class="nav-item nav-item--active" href="#empty-project">
+              <span class="nav-item__icon">▣</span>
+              <span class="nav-item__label">Linear Algebra 101</span>
+              <span class="nav-item__count">0</span>
+            </a>
+            <a class="nav-item" href="#session">
+              <span class="nav-item__icon">▣</span>
+              <span class="nav-item__label">Backprop deep dive</span>
+              <span class="nav-item__count">7</span>
+            </a>
+            <a class="nav-item" href="#">
+              <span class="nav-item__icon">▣</span>
+              <span class="nav-item__label">DSP for musicians</span>
+              <span class="nav-item__count">3</span>
+            </a>
+          </div>
+          <div class="app-sidebar__foot">
+            <a class="nav-item" href="#settings">
+              <span class="nav-item__icon">⚙</span>
+              <span class="nav-item__label">Settings</span>
+            </a>
+          </div>
+        </aside>
+
+        <div class="app-main">
+          <div class="app-canvas-pane">
+            <div class="app-pane-head">
+              <span class="app-pane-title">Linear Algebra 101</span>
+              <span class="badge">No scenes</span>
+              <span class="spacer"></span>
+              <button class="btn btn--ghost btn--sm">Import .excalidraw</button>
+            </div>
+            <div class="canvas-stage">
+              <div class="empty">
+                <div class="empty__inner">
+                  <div class="empty__icon">+</div>
+                  <h3 class="empty__title">No scenes yet</h3>
+                  <p class="empty__desc">
+                    Ask the agent for a diagram. It will render on the canvas
+                    and save automatically.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <aside class="app-chat-pane">
+            <div class="app-pane-head">
+              <span class="app-pane-title">Chat</span>
+              <span class="badge badge--accent"
+                ><span class="status-dot status-dot--success"></span>deepseek-v4-pro</span
+              >
+              <span class="spacer"></span>
+              <button class="btn btn--ghost btn--icon btn--sm" aria-label="History">⊞</button>
+            </div>
+            <div class="chat-scroll">
+              <div class="empty" style="padding: var(--space-12) var(--space-6)">
+                <div class="empty__inner">
+                  <p class="muted" style="font-size: var(--text-sm); margin: 0">
+                    Try one of these to get started:
+                  </p>
+                  <div
+                    class="vstack"
+                    style="gap: var(--space-2); margin-top: var(--space-4); align-items: stretch"
+                  >
+                    <button class="btn" style="justify-content: flex-start; height: auto; padding: var(--space-3) var(--space-4); text-align: left; flex-direction: column; align-items: flex-start; gap: 2px">
+                      <span style="color: var(--text-primary); font-size: var(--text-sm)">"Draw a vector space with a 2D basis"</span>
+                      <span class="muted" style="font-size: var(--text-xs)">Creates a single scene</span>
+                    </button>
+                    <button class="btn" style="justify-content: flex-start; height: auto; padding: var(--space-3) var(--space-4); text-align: left; flex-direction: column; align-items: flex-start; gap: 2px">
+                      <span style="color: var(--text-primary); font-size: var(--text-sm)">"Build a 5-scene deck for eigenvalues"</span>
+                      <span class="muted" style="font-size: var(--text-xs)">Generates a sequenced deck</span>
+                    </button>
+                    <button class="btn" style="justify-content: flex-start; height: auto; padding: var(--space-3) var(--space-4); text-align: left; flex-direction: column; align-items: flex-start; gap: 2px">
+                      <span style="color: var(--text-primary); font-size: var(--text-sm)">"What's a good visual for matrix multiplication?"</span>
+                      <span class="muted" style="font-size: var(--text-xs)">Discussion, no drawing</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="composer">
+              <div class="composer__inner">
+                <textarea class="composer__textarea" placeholder="Describe what you'd like to draw…"></textarea>
+                <div class="composer__row">
+                  <span class="composer__skill">◇ Diagram explainer</span>
+                  <span class="spacer"></span>
+                  <button class="btn btn--ghost btn--icon btn--sm" aria-label="Attach">📎</button>
+                  <button class="btn btn--primary btn--icon btn--sm" aria-label="Send">↑</button>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         06 — SESSION (main work view)
+         ============================================================ -->
+    <section class="screen" id="session">
+      <div class="app-shell">
+        <aside class="app-sidebar">
+          <div class="app-sidebar__head">
+            <span class="brand"
+              ><span class="brand__dot"></span>omnidraw</span
+            >
+            <button class="btn btn--ghost btn--icon btn--sm">+</button>
+          </div>
+          <div class="app-sidebar__body">
+            <div class="nav-section-title"><span>Projects</span></div>
+            <a class="nav-item" href="#empty-project">
+              <span class="nav-item__icon">▣</span>
+              <span class="nav-item__label">Linear Algebra 101</span>
+              <span class="nav-item__count">12</span>
+            </a>
+            <a class="nav-item nav-item--active" href="#session">
+              <span class="nav-item__icon">▣</span>
+              <span class="nav-item__label">Backprop deep dive</span>
+              <span class="nav-item__count">7</span>
+            </a>
+            <a class="nav-item" href="#">
+              <span class="nav-item__icon">▣</span>
+              <span class="nav-item__label">DSP for musicians</span>
+              <span class="nav-item__count">3</span>
+            </a>
+
+            <div class="nav-section-title" style="margin-top: var(--space-5)">
+              <span>Backprop · Threads</span>
+              <button class="btn btn--ghost btn--icon btn--sm" aria-label="New">+</button>
+            </div>
+            <a class="nav-item nav-item--active" href="#">
+              <span class="nav-item__icon">◰</span>
+              <span class="nav-item__label">Forward + backward pass</span>
+            </a>
+            <a class="nav-item" href="#">
+              <span class="nav-item__icon">◰</span>
+              <span class="nav-item__label">Chain rule visual</span>
+            </a>
+            <a class="nav-item" href="#">
+              <span class="nav-item__icon">◰</span>
+              <span class="nav-item__label">Why ReLU helps</span>
+            </a>
+          </div>
+          <div class="app-sidebar__foot">
+            <a class="nav-item" href="#settings">
+              <span class="nav-item__icon">⚙</span>
+              <span class="nav-item__label">Settings</span>
+            </a>
+          </div>
+        </aside>
+
+        <div class="app-main">
+          <div class="app-canvas-pane">
+            <div class="app-pane-head">
+              <span class="app-pane-title">Forward + backward pass</span>
+              <span class="muted" style="font-size: var(--text-xs)">Scene 3 of 7</span>
+              <span class="spacer"></span>
+              <button class="btn btn--ghost btn--sm">Export</button>
+              <a href="#presentation" class="btn btn--ghost btn--sm">▶ Present</a>
+            </div>
+            <div class="canvas-stage">
+              <svg
+                class="scene-svg"
+                viewBox="0 0 800 460"
+                preserveAspectRatio="xMidYMid meet"
+                style="width: 100%; height: 100%"
+                aria-label="Backprop diagram"
+              >
+                <!-- forward pass row -->
+                <rect class="stroke" x="60" y="60" width="120" height="60" rx="6" />
+                <text class="label" x="120" y="96" text-anchor="middle">x · input</text>
+
+                <rect class="stroke" x="240" y="60" width="120" height="60" rx="6" />
+                <text class="label" x="300" y="92" text-anchor="middle">W₁x + b₁</text>
+                <text class="label label--small" x="300" y="110" text-anchor="middle">linear</text>
+
+                <rect class="stroke" x="420" y="60" width="120" height="60" rx="6" />
+                <text class="label" x="480" y="92" text-anchor="middle">σ(·)</text>
+                <text class="label label--small" x="480" y="110" text-anchor="middle">activation</text>
+
+                <rect class="stroke" x="600" y="60" width="140" height="60" rx="6" />
+                <text class="label" x="670" y="96" text-anchor="middle">ŷ · prediction</text>
+
+                <!-- forward arrows (success green) -->
+                <line class="stroke stroke--success" x1="180" y1="90" x2="240" y2="90" marker-end="url(#arrow-success)" />
+                <line class="stroke stroke--success" x1="360" y1="90" x2="420" y2="90" marker-end="url(#arrow-success)" />
+                <line class="stroke stroke--success" x1="540" y1="90" x2="600" y2="90" marker-end="url(#arrow-success)" />
+
+                <!-- loss node -->
+                <rect class="stroke stroke--accent" x="600" y="220" width="140" height="60" rx="6" />
+                <text class="label label--accent" x="670" y="256" text-anchor="middle">L(ŷ, y)</text>
+
+                <line class="stroke stroke--success" x1="670" y1="120" x2="670" y2="220" marker-end="url(#arrow-success)" />
+
+                <!-- backward arrows (magenta) -->
+                <path
+                  class="stroke stroke--magenta"
+                  d="M 600 250 Q 480 250 480 130"
+                  marker-end="url(#arrow-magenta)"
+                />
+                <path
+                  class="stroke stroke--magenta"
+                  d="M 480 250 Q 300 250 300 130"
+                  marker-end="url(#arrow-magenta)"
+                />
+                <path
+                  class="stroke stroke--magenta"
+                  d="M 300 250 Q 120 250 120 130"
+                  marker-end="url(#arrow-magenta)"
+                />
+
+                <!-- legend -->
+                <g transform="translate(60, 380)">
+                  <line class="stroke stroke--success" x1="0" y1="10" x2="40" y2="10" marker-end="url(#arrow-success)" />
+                  <text class="label label--small" x="50" y="14">forward</text>
+                  <line class="stroke stroke--magenta" x1="160" y1="10" x2="200" y2="10" marker-end="url(#arrow-magenta)" />
+                  <text class="label label--small" x="210" y="14">backward · ∂L/∂·</text>
+                </g>
+                <text class="label label--small" x="60" y="420">Loss flows back, weights step down the gradient.</text>
+              </svg>
+            </div>
+            <div class="scene-queue">
+              <div class="scene-thumb">
+                <span class="scene-thumb__num">1</span>
+              </div>
+              <div class="scene-thumb">
+                <span class="scene-thumb__num">2</span>
+              </div>
+              <div class="scene-thumb scene-thumb--active">
+                <span class="scene-thumb__num">3</span>
+              </div>
+              <div class="scene-thumb">
+                <span class="scene-thumb__num">4</span>
+              </div>
+              <div class="scene-thumb">
+                <span class="scene-thumb__num">5</span>
+              </div>
+              <div class="scene-thumb">
+                <span class="scene-thumb__num">6</span>
+              </div>
+              <div class="scene-thumb">
+                <span class="scene-thumb__num">7</span>
+              </div>
+              <button class="scene-thumb__add" aria-label="Add scene">+</button>
+            </div>
+          </div>
+
+          <aside class="app-chat-pane">
+            <div class="app-pane-head">
+              <span class="app-pane-title">Forward + backward pass</span>
+              <span class="badge badge--accent"
+                ><span class="status-dot status-dot--success"></span>deepseek-v4-pro</span
+              >
+              <span class="spacer"></span>
+              <button class="btn btn--ghost btn--icon btn--sm" aria-label="History">⊞</button>
+              <button class="btn btn--ghost btn--icon btn--sm" aria-label="More">⋯</button>
+            </div>
+            <div class="chat-scroll">
+              <div class="chat-thread">
+                <article class="message message--user">
+                  <div class="message__content">
+                    <p>
+                      Make a 4-step flowchart of backpropagation. Show the loss
+                      at the bottom and gradients flowing up.
+                    </p>
+                  </div>
+                </article>
+                <article class="message message--agent">
+                  <div class="message__content">
+                    <p>
+                      I'll start with the forward pass — input, linear layer,
+                      activation, and prediction — then place a loss node at
+                      the bottom with gradient arrows flowing back up.
+                    </p>
+                    <div class="tool-call">
+                      <div class="tool-call__head">
+                        <span class="tool-call__name">create_scene</span>
+                        <span class="tool-call__success">✓ 9 elements</span>
+                      </div>
+                      <div class="tool-call__args">
+                        title: "Backprop · forward + backward"
+                      </div>
+                    </div>
+                  </div>
+                </article>
+                <article class="message message--user">
+                  <div class="message__content">
+                    <p>Color the forward pass green and the backward pass magenta.</p>
+                  </div>
+                </article>
+                <article class="message message--agent">
+                  <div class="message__content">
+                    <p>Updating the strokes now — green for the forward pass, magenta for the gradient path.</p>
+                    <div class="tool-call">
+                      <div class="tool-call__head">
+                        <span class="tool-call__name">update_elements</span>
+                        <span class="tool-call__success">✓ 6 elements</span>
+                      </div>
+                      <div class="tool-call__args">strokeColor: forward=#10b981, backward=#ec4899</div>
+                    </div>
+                  </div>
+                </article>
+                <article class="message message--user">
+                  <div class="message__content">
+                    <p>Now create scene 4 — the chain rule expansion.</p>
+                  </div>
+                </article>
+              </div>
+            </div>
+            <div class="composer">
+              <div class="composer__inner">
+                <textarea class="composer__textarea" placeholder="Continue the conversation or request a new scene…"></textarea>
+                <div class="composer__row">
+                  <a href="#skill-picker" class="composer__skill composer__skill--active">◇ Diagram explainer</a>
+                  <span class="spacer"></span>
+                  <button class="btn btn--ghost btn--icon btn--sm">📎</button>
+                  <button class="btn btn--primary btn--icon btn--sm">↑</button>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         07 — SESSION WITH LIVE-DRAWING REPLAY
+         ============================================================ -->
+    <section class="screen" id="session-drawing">
+      <div class="app-shell">
+        <aside class="app-sidebar">
+          <div class="app-sidebar__head">
+            <span class="brand"
+              ><span class="brand__dot"></span>omnidraw</span
+            >
+            <button class="btn btn--ghost btn--icon btn--sm">+</button>
+          </div>
+          <div class="app-sidebar__body">
+            <div class="nav-section-title"><span>Projects</span></div>
+            <a class="nav-item" href="#empty-project">
+              <span class="nav-item__icon">▣</span>
+              <span class="nav-item__label">Linear Algebra 101</span>
+            </a>
+            <a class="nav-item nav-item--active" href="#session-drawing">
+              <span class="nav-item__icon">▣</span>
+              <span class="nav-item__label">Backprop deep dive</span>
+            </a>
+            <div class="nav-section-title" style="margin-top: var(--space-5)">
+              <span>Threads</span>
+            </div>
+            <a class="nav-item nav-item--active" href="#">
+              <span class="nav-item__icon">◰</span>
+              <span class="nav-item__label">Chain rule visual</span>
+            </a>
+          </div>
+          <div class="app-sidebar__foot">
+            <a class="nav-item" href="#settings"
+              ><span class="nav-item__icon">⚙</span
+              ><span class="nav-item__label">Settings</span></a
+            >
+          </div>
+        </aside>
+
+        <div class="app-main">
+          <div class="app-canvas-pane">
+            <div class="app-pane-head">
+              <span class="app-pane-title">Chain rule decomposition</span>
+              <span class="badge badge--accent">Drawing</span>
+              <span class="spacer"></span>
+              <a href="#presentation" class="btn btn--ghost btn--sm">▶ Present</a>
+            </div>
+            <div class="canvas-stage">
+              <svg
+                class="scene-svg"
+                viewBox="0 0 800 460"
+                style="width: 100%; height: 100%"
+              >
+                <!-- chain ∂L/∂x = ∂L/∂y · ∂y/∂x — partly drawn -->
+                <text class="label" x="60" y="60" style="font-size: 28px; fill: var(--text-primary)">∂L/∂x =</text>
+                <rect class="stroke stroke--accent" x="220" y="30" width="160" height="80" rx="6" />
+                <text class="label label--accent" x="300" y="78" text-anchor="middle" style="font-size: 22px">∂L/∂y</text>
+                <text class="label" x="400" y="80" style="font-size: 28px; fill: var(--text-primary)">·</text>
+                <rect class="stroke stroke--accent" x="430" y="30" width="160" height="80" rx="6" style="opacity: 0.6" />
+                <text class="label label--accent" x="510" y="78" text-anchor="middle" style="font-size: 22px; opacity: 0.6">∂y/∂x</text>
+                <line
+                  class="stroke stroke--accent"
+                  x1="600"
+                  y1="70"
+                  x2="640"
+                  y2="70"
+                  stroke-dasharray="3 4"
+                  style="opacity: 0.4"
+                />
+                <text class="label label--small" x="60" y="200">drawing in progress · 3 of 6 elements</text>
+              </svg>
+            </div>
+            <div class="scene-queue">
+              <div class="scene-thumb"><span class="scene-thumb__num">1</span></div>
+              <div class="scene-thumb"><span class="scene-thumb__num">2</span></div>
+              <div class="scene-thumb scene-thumb--active"><span class="scene-thumb__num">3</span></div>
+              <button class="scene-thumb__add">+</button>
+            </div>
+          </div>
+
+          <aside class="app-chat-pane">
+            <div class="app-pane-head">
+              <span class="app-pane-title">Chain rule decomposition</span>
+              <span class="badge badge--accent"><span class="spinner"></span> Generating</span>
+              <span class="spacer"></span>
+            </div>
+            <div class="chat-scroll">
+              <div class="chat-thread">
+                <article class="message message--user">
+                  <div class="message__content">
+                    <p>
+                      Visualize the chain rule: ∂L/∂x equals ∂L/∂y times ∂y/∂x.
+                      Keep the boxes modular so I can swap any factor.
+                    </p>
+                  </div>
+                </article>
+                <article class="message message--agent">
+                  <div class="message__content">
+                    <p>
+                      Drawing it as a multiplication chain — one box per
+                      partial derivative, with the result on the left. Cyan
+                      highlights draw the eye to the gradient terms first.
+                    </p>
+
+                    <!-- live drawing replay -->
+                    <div class="tool-call tool-call--drawing">
+                      <div class="tool-call__head">
+                        <span class="tool-call__name">create_scene</span>
+                        <span class="muted" style="font-size: var(--text-xs)"
+                          >Drawing 3 of 6</span
+                        >
+                        <span class="tool-call__success" style="margin-left: auto">
+                          <span class="spinner"></span>
+                        </span>
+                      </div>
+                      <div class="tool-call__preview">
+                        <svg
+                          class="scene-svg"
+                          viewBox="0 0 400 200"
+                          style="width: 100%; height: 100%"
+                        >
+                          <text
+                            class="label"
+                            x="20"
+                            y="56"
+                            style="font-size: 24px; fill: var(--text-primary)"
+                          >
+                            ∂L/∂x =
+                          </text>
+                          <rect
+                            class="stroke stroke--accent"
+                            x="130"
+                            y="32"
+                            width="80"
+                            height="48"
+                            rx="6"
+                          />
+                          <text
+                            class="label label--accent"
+                            x="170"
+                            y="62"
+                            text-anchor="middle"
+                          >
+                            ∂L/∂y
+                          </text>
+                          <text class="label" x="220" y="60" style="font-size: 24px; fill: var(--text-primary)">·</text>
+                          <rect
+                            class="stroke stroke--accent"
+                            x="240"
+                            y="32"
+                            width="80"
+                            height="48"
+                            rx="6"
+                            style="opacity: 0.4; stroke-dasharray: 3 4"
+                          />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              </div>
+            </div>
+            <div class="composer">
+              <div class="composer__inner">
+                <textarea class="composer__textarea" placeholder="Refine the result or start a new scene…" disabled></textarea>
+                <div class="composer__row">
+                  <span class="composer__skill composer__skill--active">◇ Diagram explainer</span>
+                  <span class="spacer"></span>
+                  <span class="muted" style="font-size: var(--text-xs)">Waiting for the agent…</span>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         08 — SKILL PICKER (modal over session)
+         ============================================================ -->
+    <section class="screen" id="skill-picker">
+      <div class="app-shell" style="filter: brightness(0.5)">
+        <aside class="app-sidebar">
+          <div class="app-sidebar__head">
+            <span class="brand"
+              ><span class="brand__dot"></span>omnidraw</span
+            >
+          </div>
+          <div class="app-sidebar__body"></div>
+        </aside>
+        <div class="app-main">
+          <div class="app-canvas-pane"></div>
+          <aside class="app-chat-pane"></aside>
+        </div>
+      </div>
+      <div class="modal-backdrop">
+        <div class="modal" style="width: 580px">
+          <div class="modal__head">
+            <span class="modal__title">Choose a skill</span>
+            <span class="muted" style="font-size: var(--text-xs)">
+              <kbd>↑</kbd><kbd>↓</kbd> Navigate · <kbd>↵</kbd> Select ·
+              <kbd>esc</kbd> Close
+            </span>
+          </div>
+          <div class="modal__body">
+            <div class="input-group" style="margin-bottom: var(--space-2)">
+              <span class="input-icon">⌕</span>
+              <input class="input" placeholder="Search skills…" autofocus />
+            </div>
+            <div class="skill-row skill-row--active">
+              <div class="skill-row__icon">◇</div>
+              <div class="skill-row__body">
+                <div class="skill-row__name">Diagram explainer</div>
+                <div class="skill-row__desc">
+                  Generates a single, focused scene. Minimal labels,
+                  color-coded by element role.
+                </div>
+              </div>
+              <kbd class="skill-row__kbd">1</kbd>
+            </div>
+            <div class="skill-row">
+              <div class="skill-row__icon">▤</div>
+              <div class="skill-row__body">
+                <div class="skill-row__name">Scene deck builder</div>
+                <div class="skill-row__desc">
+                  Generates a sequenced deck of scenes for a given topic and
+                  length. Scenes can be reordered after generation.
+                </div>
+              </div>
+              <kbd class="skill-row__kbd">2</kbd>
+            </div>
+            <div class="skill-row">
+              <div class="skill-row__icon">↻</div>
+              <div class="skill-row__body">
+                <div class="skill-row__name">Refine current scene</div>
+                <div class="skill-row__desc">
+                  Includes the current canvas in context. Best for iterative
+                  edits to an existing scene.
+                </div>
+              </div>
+              <kbd class="skill-row__kbd">3</kbd>
+            </div>
+            <div class="skill-row">
+              <div class="skill-row__icon">∑</div>
+              <div class="skill-row__body">
+                <div class="skill-row__name">Math notation</div>
+                <div class="skill-row__desc">
+                  Specialized for equations and derivations. Uses LaTeX-style
+                  typesetting on the canvas.
+                </div>
+              </div>
+              <kbd class="skill-row__kbd">4</kbd>
+            </div>
+            <div class="skill-row">
+              <div class="skill-row__icon">∅</div>
+              <div class="skill-row__body">
+                <div class="skill-row__name">None — free conversation</div>
+                <div class="skill-row__desc">
+                  Plain conversation, no skill applied. Useful for
+                  brainstorming before drawing.
+                </div>
+              </div>
+              <kbd class="skill-row__kbd">0</kbd>
+            </div>
+          </div>
+          <div class="modal__foot">
+            <button class="btn btn--ghost">Manage skills</button>
+            <span class="spacer"></span>
+            <button class="btn">Cancel</button>
+            <button class="btn btn--primary">Use Diagram explainer</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         09 — PRESENTATION MODE
+         ============================================================ -->
+    <section class="screen" id="presentation">
+      <div class="pres-shell">
+        <div class="pres-stage">
+          <div class="pres-hud-top">
+            <a href="#session" class="muted" style="font-size: var(--text-sm); display: flex; align-items: center; gap: var(--space-2)">
+              <kbd>esc</kbd> Exit presentation
+            </a>
+            <span class="pres-counter">
+              <span style="color: var(--text-primary)">3</span> / 7 · Backprop
+              deep dive
+            </span>
+          </div>
+          <div class="pres-canvas">
+            <svg
+              class="scene-svg"
+              viewBox="0 0 800 460"
+              style="width: 100%; height: 100%"
+            >
+              <rect class="stroke" x="60" y="60" width="120" height="60" rx="6" />
+              <text class="label" x="120" y="96" text-anchor="middle">x · input</text>
+              <rect class="stroke" x="240" y="60" width="120" height="60" rx="6" />
+              <text class="label" x="300" y="92" text-anchor="middle">W₁x + b₁</text>
+              <text class="label label--small" x="300" y="110" text-anchor="middle">linear</text>
+              <rect class="stroke" x="420" y="60" width="120" height="60" rx="6" />
+              <text class="label" x="480" y="92" text-anchor="middle">σ(·)</text>
+              <text class="label label--small" x="480" y="110" text-anchor="middle">activation</text>
+              <rect class="stroke" x="600" y="60" width="140" height="60" rx="6" />
+              <text class="label" x="670" y="96" text-anchor="middle">ŷ</text>
+              <line class="stroke stroke--success" x1="180" y1="90" x2="240" y2="90" marker-end="url(#arrow-success)" />
+              <line class="stroke stroke--success" x1="360" y1="90" x2="420" y2="90" marker-end="url(#arrow-success)" />
+              <line class="stroke stroke--success" x1="540" y1="90" x2="600" y2="90" marker-end="url(#arrow-success)" />
+              <rect class="stroke stroke--accent" x="600" y="220" width="140" height="60" rx="6" />
+              <text class="label label--accent" x="670" y="256" text-anchor="middle">L(ŷ, y)</text>
+              <line class="stroke stroke--success" x1="670" y1="120" x2="670" y2="220" marker-end="url(#arrow-success)" />
+              <path class="stroke stroke--magenta" d="M 600 250 Q 480 250 480 130" marker-end="url(#arrow-magenta)" />
+              <path class="stroke stroke--magenta" d="M 480 250 Q 300 250 300 130" marker-end="url(#arrow-magenta)" />
+              <path class="stroke stroke--magenta" d="M 300 250 Q 120 250 120 130" marker-end="url(#arrow-magenta)" />
+            </svg>
+          </div>
+        </div>
+        <div class="pres-strip">
+          <div class="scene-thumb"><span class="scene-thumb__num">1</span></div>
+          <div class="scene-thumb"><span class="scene-thumb__num">2</span></div>
+          <div class="scene-thumb scene-thumb--active"><span class="scene-thumb__num">3</span></div>
+          <div class="scene-thumb"><span class="scene-thumb__num">4</span></div>
+          <div class="scene-thumb"><span class="scene-thumb__num">5</span></div>
+          <div class="scene-thumb"><span class="scene-thumb__num">6</span></div>
+          <div class="scene-thumb"><span class="scene-thumb__num">7</span></div>
+          <span class="spacer"></span>
+          <span class="muted" style="font-size: var(--text-xs); align-self: center; padding: 0 var(--space-3)">
+            <kbd>←</kbd> <kbd>→</kbd> Navigate · <kbd>F</kbd> Fullscreen ·
+            <kbd>?</kbd> Help
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         10 — SETTINGS
+         ============================================================ -->
+    <section class="screen" id="settings">
+      <div class="app-shell">
+        <aside class="app-sidebar">
+          <div class="app-sidebar__head">
+            <span class="brand"
+              ><span class="brand__dot"></span>omnidraw</span
+            >
+          </div>
+          <div class="app-sidebar__body">
+            <div class="nav-section-title">Settings</div>
+            <a class="nav-item nav-item--active" href="#">
+              <span class="nav-item__icon">●</span>
+              <span class="nav-item__label">Connection</span>
+            </a>
+            <a class="nav-item" href="#">
+              <span class="nav-item__icon">◐</span>
+              <span class="nav-item__label">Model</span>
+            </a>
+            <a class="nav-item" href="#">
+              <span class="nav-item__icon">◇</span>
+              <span class="nav-item__label">Skills</span>
+            </a>
+            <a class="nav-item" href="#">
+              <span class="nav-item__icon">▣</span>
+              <span class="nav-item__label">Storage</span>
+            </a>
+            <a class="nav-item" href="#">
+              <span class="nav-item__icon">▥</span>
+              <span class="nav-item__label">Appearance</span>
+            </a>
+            <a class="nav-item" href="#">
+              <span class="nav-item__icon">⌘</span>
+              <span class="nav-item__label">Hotkeys</span>
+            </a>
+            <a class="nav-item" href="#">
+              <span class="nav-item__icon">ⓘ</span>
+              <span class="nav-item__label">About</span>
+            </a>
+          </div>
+          <div class="app-sidebar__foot">
+            <a class="nav-item" href="#session">
+              <span class="nav-item__icon">←</span>
+              <span class="nav-item__label">Back to app</span>
+            </a>
+          </div>
+        </aside>
+
+        <main style="overflow-y: auto">
+          <div class="settings-page">
+            <div class="settings-section">
+              <h2 class="settings-section__title">Connection</h2>
+              <p class="settings-section__desc">
+                Omnidraw routes all model traffic through Omnizen. Your API
+                key is stored in your operating system's keychain and is only
+                ever sent to api.omnizen.ai.
+              </p>
+              <div class="settings-row">
+                <div class="settings-row__label">
+                  <div class="settings-row__name">Omnizen API key</div>
+                  <div class="settings-row__hint">
+                    <span class="status-dot status-dot--success"></span>
+                    Pro · 4.2M tokens left this month
+                  </div>
+                </div>
+                <div class="settings-row__control">
+                  <input class="input mono" value="omn_live_8d4f3a92••••" type="password" />
+                  <div class="hstack" style="margin-top: var(--space-2)">
+                    <button class="btn btn--sm">Replace</button>
+                    <button class="btn btn--ghost btn--sm">Open dashboard ↗</button>
+                  </div>
+                </div>
+              </div>
+              <div class="settings-row">
+                <div class="settings-row__label">
+                  <div class="settings-row__name">Endpoint</div>
+                  <div class="settings-row__hint">
+                    Anthropic-compatible base URL.
+                  </div>
+                </div>
+                <div class="settings-row__control">
+                  <input class="input mono" value="https://api.omnizen.ai/v1" />
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-section">
+              <h2 class="settings-section__title">Model</h2>
+              <p class="settings-section__desc">
+                The default model Omnidraw uses to generate scenes. You can
+                override the model on a per-project basis from the chat
+                header.
+              </p>
+              <div class="settings-row">
+                <div class="settings-row__label">
+                  <div class="settings-row__name">Default model</div>
+                  <div class="settings-row__hint">
+                    Used for new threads.
+                  </div>
+                </div>
+                <div class="settings-row__control">
+                  <select class="select" style="width: 100%">
+                    <option>deepseek-v4-pro (recommended)</option>
+                    <option>deepseek-v4-flash</option>
+                    <option>kimi-k2</option>
+                    <option>glm-4.6</option>
+                    <option>qwen3-max</option>
+                  </select>
+                </div>
+              </div>
+              <div class="settings-row">
+                <div class="settings-row__label">
+                  <div class="settings-row__name">Stream tokens</div>
+                  <div class="settings-row__hint">
+                    Render messages as they stream from the model.
+                    Recommended.
+                  </div>
+                </div>
+                <div class="settings-row__control" style="display: flex; justify-content: flex-end">
+                  <span class="toggle toggle--on" role="switch" aria-checked="true"></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-section">
+              <h2 class="settings-section__title">Storage</h2>
+              <p class="settings-section__desc">
+                Where Omnidraw stores projects, scenes, and conversation
+                threads.
+              </p>
+              <div class="settings-row">
+                <div class="settings-row__label">
+                  <div class="settings-row__name">Workspace folder</div>
+                  <div class="settings-row__hint mono" style="margin-top: 4px">
+                    ~/omnidraw/projects/
+                  </div>
+                </div>
+                <div class="settings-row__control" style="display: flex; justify-content: flex-end">
+                  <button class="btn btn--sm">Choose…</button>
+                </div>
+              </div>
+              <div class="settings-row">
+                <div class="settings-row__label">
+                  <div class="settings-row__name">Auto-save scenes</div>
+                  <div class="settings-row__hint">
+                    Save scenes after every tool call. Disable for manual
+                    control.
+                  </div>
+                </div>
+                <div class="settings-row__control" style="display: flex; justify-content: flex-end">
+                  <span class="toggle toggle--on" role="switch" aria-checked="true"></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-section">
+              <h2 class="settings-section__title">Appearance</h2>
+              <div class="settings-row">
+                <div class="settings-row__label">
+                  <div class="settings-row__name">Accent color</div>
+                  <div class="settings-row__hint">
+                    Used across the interface for emphasis and active states.
+                  </div>
+                </div>
+                <div class="settings-row__control" style="display: flex; gap: var(--space-2); justify-content: flex-end">
+                  <button style="width: 28px; height: 28px; border-radius: 50%; background: #06b6d4; border: 2px solid var(--text-primary)" aria-label="Cyan"></button>
+                  <button style="width: 28px; height: 28px; border-radius: 50%; background: #7170ff; border: 1px solid var(--border-default)" aria-label="Violet"></button>
+                  <button style="width: 28px; height: 28px; border-radius: 50%; background: #fb923c; border: 1px solid var(--border-default)" aria-label="Coral"></button>
+                  <button style="width: 28px; height: 28px; border-radius: 50%; background: #84cc16; border: 1px solid var(--border-default)" aria-label="Lime"></button>
+                  <button style="width: 28px; height: 28px; border-radius: 50%; background: #ec4899; border: 1px solid var(--border-default)" aria-label="Magenta"></button>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-section">
+              <h2 class="settings-section__title" style="color: var(--danger)">Danger zone</h2>
+              <div class="settings-row">
+                <div class="settings-row__label">
+                  <div class="settings-row__name">Clear all data</div>
+                  <div class="settings-row__hint">
+                    Permanently deletes all projects, scenes, threads, and
+                    your stored API key. This cannot be undone.
+                  </div>
+                </div>
+                <div class="settings-row__control" style="display: flex; justify-content: flex-end">
+                  <button class="btn btn--danger btn--sm">Clear data…</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         11 — ERROR STATES
+         ============================================================ -->
+    <section class="screen" id="errors">
+      <div class="app-shell">
+        <aside class="app-sidebar">
+          <div class="app-sidebar__head">
+            <span class="brand"
+              ><span class="brand__dot"></span>omnidraw</span
+            >
+          </div>
+          <div class="app-sidebar__body">
+            <div class="nav-section-title">Projects</div>
+            <a class="nav-item nav-item--active" href="#">
+              <span class="nav-item__icon">▣</span>
+              <span class="nav-item__label">Backprop deep dive</span>
+            </a>
+          </div>
+          <div class="app-sidebar__foot">
+            <a class="nav-item" href="#"
+              ><span class="nav-item__icon"
+                ><span class="status-dot status-dot--danger"></span
+              ></span>
+              <span class="nav-item__label" style="color: var(--danger)"
+                >Disconnected from Omnizen</span
+              ></a
+            >
+          </div>
+        </aside>
+
+        <div class="app-main">
+          <div class="app-canvas-pane">
+            <div class="app-pane-head">
+              <span class="app-pane-title">Error states</span>
+              <span class="muted" style="font-size: var(--text-xs)">
+                Demo · not a real error
+              </span>
+            </div>
+            <div class="canvas-stage" style="padding: var(--space-8); display: block; overflow-y: auto">
+              <div class="vstack" style="gap: var(--space-5); max-width: 600px">
+                <div class="alert alert--danger">
+                  <span class="alert__icon">⚠</span>
+                  <div class="alert__body">
+                    <div class="alert__title">Authentication failed</div>
+                    <div class="alert__desc">
+                      Your Omnizen API key was rejected. The key may have been
+                      rotated or revoked. Issue a new key from
+                      <a href="https://omnizen.ai/dashboard/keys" target="_blank">your dashboard</a>
+                      and paste it in Settings.
+                    </div>
+                  </div>
+                </div>
+                <div class="alert alert--danger">
+                  <span class="alert__icon">⚠</span>
+                  <div class="alert__body">
+                    <div class="alert__title">Network unreachable</div>
+                    <div class="alert__desc">
+                      Cannot reach api.omnizen.ai. Cached threads remain
+                      available; new generations will resume once the
+                      connection is restored.
+                    </div>
+                  </div>
+                </div>
+                <div class="alert alert--warning">
+                  <span class="alert__icon">⚡</span>
+                  <div class="alert__body">
+                    <div class="alert__title">Plan limit reached</div>
+                    <div class="alert__desc">
+                      You've used all credits on the Free tier. Top up at
+                      <a href="https://omnizen.ai/dashboard/topup">omnizen.ai/dashboard/topup</a>
+                      or upgrade to Pro for additional headroom.
+                    </div>
+                  </div>
+                </div>
+                <div class="alert alert--info">
+                  <span class="alert__icon">ⓘ</span>
+                  <div class="alert__body">
+                    <div class="alert__title">deepseek-v4-pro is currently degraded</div>
+                    <div class="alert__desc">
+                      Omnizen is reporting elevated error rates upstream. This
+                      thread has been temporarily routed to deepseek-v4-flash.
+                      You can switch back from the chat header at any time.
+                    </div>
+                  </div>
+                </div>
+
+                <h4 style="margin-top: var(--space-6)">Inline tool-call error</h4>
+                <article class="message message--agent">
+                  <div class="message__content">
+                    <p>I tried to add a third row of nodes —</p>
+                    <div class="tool-call" style="border-color: rgba(239,68,68,0.3); background: rgba(239,68,68,0.06)">
+                      <div class="tool-call__head">
+                        <span class="tool-call__name" style="color: var(--danger)">add_elements</span>
+                        <span style="color: var(--danger); font-size: var(--text-xs); margin-left: auto">✗ failed</span>
+                      </div>
+                      <div class="tool-call__args">
+                        Scene element limit reached (200 maximum). Continue
+                        in a new scene to keep going.
+                      </div>
+                    </div>
+                    <p style="margin-top: var(--space-3)">Would you like me to start scene 4 with the rest?</p>
+                  </div>
+                </article>
+              </div>
+            </div>
+          </div>
+
+          <aside class="app-chat-pane">
+            <div class="app-pane-head">
+              <span class="app-pane-title">Chat</span>
+              <span class="badge badge--danger">
+                <span class="status-dot status-dot--danger"></span>
+                disconnected
+              </span>
+            </div>
+            <div class="chat-scroll">
+              <div class="empty">
+                <div class="empty__inner">
+                  <div class="empty__icon" style="color: var(--danger); border-color: rgba(239,68,68,0.3)">!</div>
+                  <h3 class="empty__title">Disconnected from Omnizen</h3>
+                  <p class="empty__desc">
+                    Connection dropped 2 minutes ago. The agent will resume
+                    automatically once the connection is restored.
+                  </p>
+                  <button class="btn">Retry now</button>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         12 — LOADING STATES
+         ============================================================ -->
+    <section class="screen" id="loading">
+      <div class="app-shell">
+        <aside class="app-sidebar">
+          <div class="app-sidebar__head">
+            <span class="brand"
+              ><span class="brand__dot"></span>omnidraw</span
+            >
+          </div>
+          <div class="app-sidebar__body">
+            <div class="nav-section-title">Projects</div>
+            <a class="nav-item nav-item--active" href="#">
+              <span class="nav-item__icon">▣</span>
+              <span class="nav-item__label">Loading…</span>
+              <span class="nav-item__count"><span class="spinner"></span></span>
+            </a>
+          </div>
+        </aside>
+
+        <div class="app-main">
+          <div class="app-canvas-pane">
+            <div class="app-pane-head">
+              <span class="app-pane-title">Loading states</span>
+            </div>
+            <div class="canvas-stage" style="padding: var(--space-8); display: block; overflow-y: auto">
+              <div class="vstack" style="gap: var(--space-6); max-width: 600px">
+                <div>
+                  <h4 style="margin-bottom: var(--space-3)">
+                    Inline spinner in chat header
+                  </h4>
+                  <div
+                    style="
+                      border: 1px solid var(--border-subtle);
+                      border-radius: var(--radius-3);
+                      padding: var(--space-3);
+                      background: var(--bg-panel);
+                    "
+                  >
+                    <div class="hstack">
+                      <span class="badge badge--accent">
+                        <span class="spinner"></span> generating
+                      </span>
+                      <span class="muted" style="font-size: var(--text-xs)"
+                        >deepseek-v4-pro · 1.2s</span
+                      >
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 style="margin-bottom: var(--space-3)">
+                    Skeleton (project loading)
+                  </h4>
+                  <div
+                    style="
+                      border: 1px solid var(--border-subtle);
+                      border-radius: var(--radius-4);
+                      padding: var(--space-4);
+                      background: var(--bg-surface);
+                    "
+                  >
+                    <div
+                      style="
+                        height: 14px;
+                        width: 40%;
+                        background: var(--bg-input-hover);
+                        border-radius: var(--radius-2);
+                        margin-bottom: var(--space-3);
+                      "
+                    ></div>
+                    <div
+                      style="
+                        height: 12px;
+                        width: 80%;
+                        background: var(--bg-input-hover);
+                        border-radius: var(--radius-2);
+                        margin-bottom: var(--space-2);
+                      "
+                    ></div>
+                    <div
+                      style="
+                        height: 12px;
+                        width: 60%;
+                        background: var(--bg-input-hover);
+                        border-radius: var(--radius-2);
+                      "
+                    ></div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 style="margin-bottom: var(--space-3)">
+                    Streaming agent message (typing dots)
+                  </h4>
+                  <article class="message message--agent">
+                    <div class="message__content">
+                      <p>
+                        Drafting the four nodes — forward pass, loss, gradient,
+                        update. I'll arrange them
+                      </p>
+                      <p>
+                        <span class="muted">vertically with a return</span>
+                        <span
+                          style="
+                            display: inline-block;
+                            width: 6px;
+                            height: 14px;
+                            background: var(--accent-bright);
+                            margin-left: 2px;
+                            vertical-align: middle;
+                            animation: pulse 1s infinite;
+                          "
+                        ></span>
+                      </p>
+                    </div>
+                  </article>
+                </div>
+
+                <div>
+                  <h4 style="margin-bottom: var(--space-3)">
+                    Verifying Omnizen key
+                  </h4>
+                  <div
+                    style="
+                      border: 1px solid var(--border-subtle);
+                      border-radius: var(--radius-3);
+                      padding: var(--space-4);
+                      background: var(--bg-panel);
+                    "
+                  >
+                    <div class="hstack">
+                      <span class="spinner"></span>
+                      <span style="font-size: var(--text-sm)"
+                        >Verifying your key with api.omnizen.ai…</span
+                      >
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 style="margin-bottom: var(--space-3)">
+                    Disabled composer (waiting for response)
+                  </h4>
+                  <div class="composer" style="position: static; padding: 0">
+                    <div class="composer__inner">
+                      <textarea
+                        class="composer__textarea"
+                        placeholder="Wait for the agent…"
+                        disabled
+                      ></textarea>
+                      <div class="composer__row">
+                        <span class="composer__skill composer__skill--active"
+                          >◇ Diagram explainer</span
+                        >
+                        <span class="spacer"></span>
+                        <span
+                          class="muted"
+                          style="font-size: var(--text-xs)"
+                          ><span class="spinner"></span> Generating…</span
+                        >
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <aside class="app-chat-pane">
+            <div class="app-pane-head">
+              <span class="app-pane-title">Chat</span>
+            </div>
+            <div class="chat-scroll">
+              <div class="empty">
+                <div class="empty__inner">
+                  <span class="spinner" style="width: 24px; height: 24px"></span>
+                  <p
+                    style="
+                      margin-top: var(--space-4);
+                      color: var(--text-muted);
+                      font-size: var(--text-sm);
+                    "
+                  >
+                    Loading thread…
+                  </p>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <script>
+      (function () {
+        const screens = Array.from(document.querySelectorAll(".screen"));
+        const navLinks = Array.from(
+          document.querySelectorAll(".devbar__nav a")
+        );
+        const screenIds = new Set(screens.map(s => s.id));
+
+        function show(hash) {
+          const id = (hash || "").replace("#", "") || "welcome";
+          const target = screens.find(s => s.id === id) || screens[0];
+          screens.forEach(s => s.classList.toggle("is-active", s === target));
+          navLinks.forEach(a =>
+            a.classList.toggle(
+              "is-active",
+              a.getAttribute("href") === "#" + target.id
+            )
+          );
+          document.title = "omnidraw · " + target.id;
+          // Try to update the URL (some sandboxed previewers block this — that's fine)
+          try {
+            history.replaceState(null, "", "#" + target.id);
+          } catch (_) {}
+        }
+
+        // Delegate clicks: any in-page anchor pointing at a screen ID switches screens.
+        // Avoids relying on hashchange events, which sandboxed previewers can swallow.
+        document.addEventListener("click", e => {
+          const a = e.target.closest('a[href^="#"]');
+          if (!a) return;
+          const hash = a.getAttribute("href");
+          if (!hash || hash === "#") return;
+          const id = hash.slice(1);
+          if (!screenIds.has(id)) return;
+          e.preventDefault();
+          show(hash);
+        });
+
+        // Still respect hashchange when it does fire
+        window.addEventListener("hashchange", () => show(location.hash));
+
+        show(location.hash);
+
+        // Keyboard nav between screens
+        document.addEventListener("keydown", e => {
+          if (e.target.matches("input, textarea")) return;
+          const idx = screens.findIndex(s => s.classList.contains("is-active"));
+          if (e.key === "]" || e.key === "ArrowDown") {
+            show("#" + screens[(idx + 1) % screens.length].id);
+            e.preventDefault();
+          } else if (e.key === "[" || e.key === "ArrowUp") {
+            show(
+              "#" + screens[(idx - 1 + screens.length) % screens.length].id
+            );
+            e.preventDefault();
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>
