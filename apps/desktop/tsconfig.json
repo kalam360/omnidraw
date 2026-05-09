@@ -20,7 +20,8 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@excalidraw/element/types": ["./src/types/excalidraw-element-types.d.ts"]
     }
   },
   "include": ["src"]

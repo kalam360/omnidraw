@@ -8,11 +8,14 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
+    "test": "pnpm test:storage && pnpm test:canvas && pnpm test:agent",
     "test:storage": "vitest run --config vitest.storage.config.ts",
     "test:storage:watch": "vitest --config vitest.storage.config.ts",
     "test:canvas": "vitest run --config ./vitest.canvas.config.ts",
     "test:canvas:watch": "vitest --config ./vitest.canvas.config.ts",
-    "test:agent": "vitest run --config vitest.agent.config.ts"
+    "test:agent": "vitest run --config vitest.agent.config.ts",
+    "test:frontend": "playwright test",
+    "test:frontend:install": "playwright install chromium"
   },
   "dependencies": {
     "@ai-sdk/openai": "3.0.63",
@@ -34,6 +37,7 @@
     "radix-ui": "1.4.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-router-dom": "^6.30.3",
     "remark-gfm": "4.0.1",
     "shadcn": "4.7.0",
     "tailwind-merge": "3.5.0",
@@ -42,6 +46,7 @@
     "zustand": "5.0.13"
   },
   "devDependencies": {
+    "@playwright/test": "1.59.1",
     "@tailwindcss/vite": "^4.0.0",
     "@types/better-sqlite3": "7.6.12",
     "@types/morphdom": "2.4.2",
