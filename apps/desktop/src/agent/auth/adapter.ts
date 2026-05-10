@@ -178,7 +178,8 @@ async function defaultValidate(
         "content-type": "application/json",
       },
       body: JSON.stringify({
-        model: "claude-3-5-haiku-latest",
+        // Cheap ping. Omnizen routes this to its lightest upstream model.
+        model: "deepseek-v4-flash",
         max_tokens: 1,
         messages: [{ role: "user", content: "ping" }],
       }),
