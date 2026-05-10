@@ -196,7 +196,9 @@ export class OmnidrawChatAdapter implements ChatModelAdapter {
           "content-type": "application/json",
         },
         body: JSON.stringify({
-          model: this.opts.modelId ?? "claude-3-5-haiku-latest",
+          // Ping always uses the cheap flash model regardless of which
+          // model this adapter is otherwise configured for.
+          model: "deepseek-v4-flash",
           max_tokens: 1,
           messages: [{ role: "user", content: "ping" }],
         }),

@@ -11,9 +11,16 @@
  * So we don't need a custom `streamFunction`. We just construct a
  * `Model<"anthropic-messages">` whose `baseUrl` points at omnizen.
  *
- * The default model id is the Sonnet alias the omnizen team
- * documents; omnizen routes that alias to credible Chinese
- * equivalents (DeepSeek/Kimi/etc.) automatically.
+ * Models we use:
+ *   - `deepseek-v4-pro`   — default for chat. Best reasoning, slower, costlier.
+ *   - `deepseek-v4-flash` — used for cheap pings (key validation, health
+ *     checks) and for low-complexity user requests when complexity routing
+ *     is enabled. ~5x cheaper, ~3x faster.
+ *
+ * Pi/Omnizen also expose `claude-3-5-sonnet-*` aliases that Omnizen
+ * routes to credible upstream equivalents — kept available via
+ * `omnizenModel({ modelId: "claude-3-5-sonnet-latest" })` for users
+ * who want to test against a different routed family.
  */
 
 import type { Model } from "@earendil-works/pi-ai";
@@ -21,9 +28,37 @@ import type { Model } from "@earendil-works/pi-ai";
 export const OMNIZEN_API_BASE = "https://api.omnizen.ai/v1";
 export const OMNIZEN_AUTH_BASE = "https://api.omnizen.ai/api/cli/auth";
 
-/** Default model id sent to Omnizen. Omnizen aliases this to its
- * routed underlying model. */
-export const DEFAULT_OMNIZEN_MODEL_ID = "claude-3-5-sonnet-latest";
+/** Pro model — used for default chat + complex requests. */
+export const OMNIZEN_PRO_MODEL_ID = "deepseek-v4-pro";
+
+/** Flash model — used for pings, validation, and low-complexity requests. */
+export const OMNIZEN_FLASH_MODEL_ID = "deepseek-v4-flash";
+
+/** Default model id sent to Omnizen for normal chat. */
+export const DEFAULT_OMNIZEN_MODEL_ID = OMNIZEN_PRO_MODEL_ID;
+
+/** Cheap model for pings / key validation. */
+export const OMNIZEN_PING_MODEL_ID = OMNIZEN_FLASH_MODEL_ID;
+
+/**
+ * Heuristic: pick `flash` for short / low-complexity prompts, otherwise
+ * `pro`. Caller can override per-message; this is the default policy.
+ *
+ * v0.1 rule (simple but useful): treat as `flash` when the latest user
+ * prompt is short and looks like a quick reply. Otherwise `pro`.
+ *
+ * v0.2 will replace this with a proper classifier (cheap LLM call or
+ * a small heuristic on conversation state + tool intent).
+ */
+export function pickOmnizenModelByComplexity(latestUserPrompt: string): string {
+  const trimmed = latestUserPrompt.trim();
+  // Short single-line ack / "yes" / "no" / quick clarification → flash
+  if (trimmed.length < 60 && !/[`{}\[\]]/.test(trimmed) && trimmed.split("\n").length === 1) {
+    return OMNIZEN_FLASH_MODEL_ID;
+  }
+  // Code blocks, math, or longer prompts → pro
+  return OMNIZEN_PRO_MODEL_ID;
+}
 
 export interface OmnizenModelOptions {
   /** Override the model id sent to Omnizen (e.g. "claude-3-5-haiku-latest"). */
